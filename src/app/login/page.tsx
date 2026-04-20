@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 
 export default function LoginPage() {
@@ -20,7 +21,7 @@ export default function LoginPage() {
       setError(err)
       setLoading(false)
     } else {
-      router.push('/predict')
+      router.push('/leagues')
     }
   }
 
@@ -67,6 +68,13 @@ export default function LoginPage() {
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
+
+          <p className="text-center font-mono text-xs text-f1muted mt-2">
+            Don't have an account?{' '}
+            <Link href="/signup" className="text-f1red hover:text-red-400 transition-colors">
+              Sign up
+            </Link>
+          </p>
       </div>
     </div>
   )

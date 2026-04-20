@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth'
 import clsx from 'clsx'
 
 const links = [
-  { href: '/',        label: 'Leaderboard' },
+  { href: '/leagues', label: 'Leagues' },
   { href: '/race',    label: 'Races' },
   { href: '/predict', label: 'Predict' },
   { href: '/admin',   label: 'Admin' },
