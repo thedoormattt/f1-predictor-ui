@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import { getRace, getDrivers, getTeams, getPlayerPredictions, submitPrediction } from '@/lib/api'
@@ -18,10 +18,11 @@ const EMPTY: FormState = {
   dotd: '', safety_car: '', pos_gained: '',
 }
 
-export default function PredictRacePage({ params }: { params: { id: string } }) {
+export default function PredictRacePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id }            = use(params)
   const { user, loading } = useAuth()
   const router            = useRouter()
-  const raceId            = parseInt(params.id)
+  const raceId            = parseInt(id)
 
   const [race, setRace]         = useState<Race | null>(null)
   const [drivers, setDrivers]   = useState<Driver[]>([])

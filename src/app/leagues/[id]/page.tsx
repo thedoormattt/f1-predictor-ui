@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useAuth } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import LeaderboardTable from '@/components/LeaderboardTable'
@@ -16,10 +16,11 @@ interface League {
   created_by: string
 }
 
-export default function LeaguePage({ params }: { params: { id: string } }) {
+export default function LeaguePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id }            = use(params)
   const { user, loading } = useAuth()
   const router            = useRouter()
-  const leagueId          = parseInt(params.id)
+  const leagueId          = parseInt(id)
 
   const [league, setLeague]         = useState<League | null>(null)
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])

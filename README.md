@@ -1,9 +1,9 @@
 # F1 Predictions League — Frontend
 
-Next.js 14 frontend for the F1 Predictions League.
+Next.js 16 frontend for the F1 Predictions League.
 
 ## Stack
-- **Next.js 14** (App Router) — React framework
+- **Next.js 16** (App Router) — React framework
 - **Tailwind CSS** — styling
 - **Recharts** — cumulative points chart
 - **Supabase JS** — auth only (data goes via FastAPI)
@@ -11,9 +11,14 @@ Next.js 14 frontend for the F1 Predictions League.
 
 ---
 
+## Requirements
+
+- **Node.js >=20.9.0** (Next.js 16 requirement). Use nvm: `nvm install 20 && nvm use 20`
+
 ## Local setup
 
 ```bash
+nvm use   # picks up .nvmrc → Node 20
 npm install
 
 cp .env.local.example .env.local
@@ -38,6 +43,7 @@ Make sure your FastAPI backend is also running on port 8000.
 | `/race` | Full 2026 race calendar |
 | `/race/[id]` | Race result, all scores, prediction breakdown |
 | `/login` | Supabase email/password login |
+| `/signup` | Player registration (full name + display name, duplicate check) |
 | `/predict` | Pick a race to predict |
 | `/predict/[id]` | Prediction form (locked after race starts) |
 | `/admin` | Fetch OpenF1 results, set DotD, trigger scoring |
@@ -46,18 +52,13 @@ Make sure your FastAPI backend is also running on port 8000.
 
 ## Adding players
 
-Players sign up via Supabase Auth. To add your 7 friends:
+Players self-register at `/signup` with a full name, display name, email, and password. The display name is checked for uniqueness client-side on blur and enforced by a DB unique constraint.
 
-1. Go to **Supabase dashboard → Authentication → Users**
-2. Click **Invite user** and enter their email
-3. They'll get a magic link to set their password
-4. Their UUID from auth.users will be their `player_id` — make sure it matches the `players` table
-
-Or create them manually in the SQL editor:
-```sql
--- After they've signed up via auth, link them to the players table:
-INSERT INTO players (id, name) VALUES ('their-uuid-here', 'Matt');
+The API POST `/players` body expects:
+```json
+{ "name": "display-name", "full_name": "Full Name" }
 ```
+Ensure the `players` table has a `full_name` column and a unique constraint on `name`.
 
 ---
 
