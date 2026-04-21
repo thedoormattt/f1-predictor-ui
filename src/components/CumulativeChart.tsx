@@ -90,7 +90,7 @@ export default function CumulativeChart({ data }: { data: CumulativeEntry[] }) {
         {players.map((player, i) => (
           <Line
             key={player}
-            type="monotone"
+            type="linear"
             dataKey={player}
             stroke={COLORS[i % COLORS.length]}
             strokeWidth={2}
