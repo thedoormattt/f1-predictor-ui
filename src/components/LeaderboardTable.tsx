@@ -127,10 +127,8 @@ export default function LeaderboardTable({
               ) : scores[e.player_id]?.length ? (
                 <>
                   {/* Header */}
-                  <div className="grid grid-cols-[1fr_repeat(10,_auto)] gap-x-3 pb-1 border-b border-f1mid">
-                    <span className="font-mono text-f1muted text-[10px] uppercase">
-                      Race
-                    </span>
+                  <div className="flex items-center gap-0 pb-1 border-b border-f1mid text-[10px] font-mono text-f1muted uppercase">
+                    <span className="w-16">Race</span>
                     {[
                       "Pole",
                       "P1",
@@ -143,25 +141,23 @@ export default function LeaderboardTable({
                       "DotD",
                       "SC",
                     ].map((h) => (
-                      <span
-                        key={h}
-                        className="font-mono text-f1muted text-[10px] uppercase text-right"
-                      >
+                      <span key={h} className="w-10 text-right">
                         {h}
                       </span>
                     ))}
                   </div>
+
                   {scores[e.player_id].map((s) => (
                     <div
                       key={s.race_key}
-                      className="grid grid-cols-[1fr_repeat(10,_auto)] gap-x-3 items-center"
+                      className="flex items-center gap-0 py-0.5"
                     >
-                      <div>
+                      <div className="w-16 flex items-center gap-1">
                         <span className="font-mono text-xs text-f1white">
                           {s.location.split(" ")[0]}
                         </span>
                         {s.type === "Sprint" && (
-                          <span className="ml-1 font-mono text-[10px] text-f1red uppercase">
+                          <span className="font-mono text-[10px] text-f1red uppercase">
                             S
                           </span>
                         )}
@@ -181,7 +177,7 @@ export default function LeaderboardTable({
                         <span
                           key={j}
                           className={clsx(
-                            "font-mono text-xs text-right",
+                            "w-10 text-right font-mono text-xs",
                             pts > 0 ? "text-f1red font-bold" : "text-f1muted",
                           )}
                         >
@@ -190,9 +186,10 @@ export default function LeaderboardTable({
                       ))}
                     </div>
                   ))}
+
                   {/* Total row */}
-                  <div className="grid grid-cols-[1fr_auto] gap-x-3 pt-1 border-t border-f1mid">
-                    <span className="font-mono text-xs text-f1muted uppercase">
+                  <div className="flex items-center gap-0 pt-1 border-t border-f1mid">
+                    <span className="flex-1 font-mono text-xs text-f1muted uppercase">
                       Total
                     </span>
                     <span className="font-display font-black text-base text-f1white">
