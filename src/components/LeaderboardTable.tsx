@@ -1,53 +1,214 @@
-import type { LeaderboardEntry } from '@/types'
-import clsx from 'clsx'
+"use client";
+import { useState } from "react";
+import type { LeaderboardEntry } from "@/types";
+import clsx from "clsx";
 
-export default function LeaderboardTable({ entries }: { entries: LeaderboardEntry[] }) {
-  if (!entries.length) return (
-    <div className="card p-8 text-center text-f1muted font-mono text-sm">
-      No scores yet — first race coming soon
-    </div>
-  )
+interface ScoreBreakdown {
+  race_key: string;
+  location: string;
+  type: string;
+  pole_pts: number;
+  p1_pts: number;
+  p2_pts: number;
+  p3_pts: number;
+  podium_bonus: number;
+  podium_pts: number;
+  last_pts: number;
+  fl_pts: number;
+  fp_pts: number;
+  dotd_pts: number;
+  sc_pts: number;
+  gains_pts: number;
+  total: number;
+}
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+
+export default function LeaderboardTable({
+  entries,
+}: {
+  entries: LeaderboardEntry[];
+}) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [scores, setScores] = useState<Record<string, ScoreBreakdown[]>>({});
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const toggle = async (playerId: string) => {
+    if (expanded === playerId) {
+      setExpanded(null);
+      return;
+    }
+    setExpanded(playerId);
+    if (scores[playerId]) return;
+
+    setLoading(playerId);
+    try {
+      const [scoresRes, racesRes] = await Promise.all([
+        fetch(`${API}/players/${playerId}/scores`).then((r) => r.json()),
+        fetch(`${API}/races`).then((r) => r.json()),
+      ]);
+      const raceMap = Object.fromEntries(racesRes.map((r: any) => [r.id, r]));
+      const merged = scoresRes
+        .map((s: any) => ({
+          ...s,
+          race_key: raceMap[s.race_id]?.race_key ?? s.race_id,
+          location: raceMap[s.race_id]?.location ?? "",
+          type: raceMap[s.race_id]?.type ?? "",
+          scheduled_at: raceMap[s.race_id]?.scheduled_at ?? "",
+        }))
+        .sort(
+          (a: any, b: any) =>
+            new Date(a.scheduled_at).getTime() -
+            new Date(b.scheduled_at).getTime(),
+        );
+      setScores((prev) => ({ ...prev, [playerId]: merged }));
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  if (!entries.length)
+    return (
+      <div className="card p-8 text-center text-f1muted font-mono text-sm">
+        No scores yet — first race coming soon
+      </div>
+    );
 
   return (
     <div className="card overflow-hidden">
       {entries.map((e, i) => (
         <div
           key={e.player_id}
-          className={clsx(
-            'flex items-center gap-4 px-5 py-4 card-hover',
-            `stagger-${Math.min(i + 1, 7)} animate-fade-up`,
-            i < entries.length - 1 && 'border-b border-f1mid'
-          )}
+          className={clsx(i < entries.length - 1 && "border-b border-f1mid")}
         >
-          {/* Position */}
-          <div className={clsx('pos-badge', `pos-${e.position <= 3 ? e.position : 'n'}`)}>
-            {e.position}
+          {/* Main row */}
+          <div
+            onClick={() => toggle(e.player_id)}
+            className={clsx(
+              "flex items-center gap-4 px-5 py-4 cursor-pointer transition-colors",
+              `stagger-${Math.min(i + 1, 7)} animate-fade-up`,
+              expanded === e.player_id ? "bg-f1grey" : "hover:bg-f1grey/50",
+            )}
+          >
+            <div
+              className={clsx(
+                "pos-badge",
+                `pos-${e.position <= 3 ? e.position : "n"}`,
+              )}
+            >
+              {e.position}
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-bold text-lg uppercase tracking-wide">
+                {e.player_name}
+              </p>
+              <p className="font-mono text-f1muted text-xs">
+                {e.races_scored} race{e.races_scored !== 1 ? "s" : ""} scored
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="font-display font-black text-3xl text-f1white">
+                {e.total_score}
+              </p>
+              <p className="font-mono text-f1muted text-xs">pts</p>
+            </div>
+            <span className="font-mono text-f1muted text-xs ml-1">
+              {expanded === e.player_id ? "▲" : "▼"}
+            </span>
           </div>
 
-          {/* Name */}
-          <div className="flex-1">
-            <p className="font-display font-bold text-lg uppercase tracking-wide">
-              {e.player_name}
-            </p>
-            <p className="font-mono text-f1muted text-xs">
-              {e.races_scored} race{e.races_scored !== 1 ? 's' : ''} scored
-            </p>
-          </div>
-
-          {/* Score */}
-          <div className="text-right">
-            <p className="font-display font-black text-3xl text-f1white">
-              {e.total_score}
-            </p>
-            <p className="font-mono text-f1muted text-xs">pts</p>
-          </div>
-
-          {/* Red bar for leader */}
-          {e.position === 1 && (
-            <div className="w-1 h-10 bg-f1red rounded-full absolute left-0" />
+          {/* Expanded scores */}
+          {expanded === e.player_id && (
+            <div className="border-t border-f1mid bg-f1dark px-5 py-3 space-y-2">
+              {loading === e.player_id ? (
+                <p className="font-mono text-f1muted text-xs animate-pulse py-2">
+                  Loading…
+                </p>
+              ) : scores[e.player_id]?.length ? (
+                <>
+                  {/* Header */}
+                  <div className="grid grid-cols-[1fr_repeat(10,_auto)] gap-x-3 pb-1 border-b border-f1mid">
+                    <span className="font-mono text-f1muted text-[10px] uppercase">
+                      Race
+                    </span>
+                    {[
+                      "Pole",
+                      "P1",
+                      "P2",
+                      "P3",
+                      "Pod",
+                      "Last",
+                      "FL",
+                      "FP",
+                      "DotD",
+                      "SC",
+                    ].map((h) => (
+                      <span
+                        key={h}
+                        className="font-mono text-f1muted text-[10px] uppercase text-right"
+                      >
+                        {h}
+                      </span>
+                    ))}
+                  </div>
+                  {scores[e.player_id].map((s) => (
+                    <div
+                      key={s.race_key}
+                      className="grid grid-cols-[1fr_repeat(10,_auto)] gap-x-3 items-center"
+                    >
+                      <div>
+                        <span className="font-mono text-xs text-f1white">
+                          {s.location.split(" ")[0]}
+                        </span>
+                        {s.type === "Sprint" && (
+                          <span className="ml-1 font-mono text-[10px] text-f1red uppercase">
+                            S
+                          </span>
+                        )}
+                      </div>
+                      {[
+                        s.pole_pts,
+                        s.p1_pts,
+                        s.p2_pts,
+                        s.p3_pts,
+                        s.podium_bonus + s.podium_pts,
+                        s.last_pts,
+                        s.fl_pts,
+                        s.fp_pts,
+                        s.dotd_pts,
+                        s.sc_pts,
+                      ].map((pts, j) => (
+                        <span
+                          key={j}
+                          className={clsx(
+                            "font-mono text-xs text-right",
+                            pts > 0 ? "text-f1red font-bold" : "text-f1muted",
+                          )}
+                        >
+                          {pts > 0 ? pts : "—"}
+                        </span>
+                      ))}
+                    </div>
+                  ))}
+                  {/* Total row */}
+                  <div className="grid grid-cols-[1fr_auto] gap-x-3 pt-1 border-t border-f1mid">
+                    <span className="font-mono text-xs text-f1muted uppercase">
+                      Total
+                    </span>
+                    <span className="font-display font-black text-base text-f1white">
+                      {scores[e.player_id].reduce((sum, s) => sum + s.total, 0)}
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <p className="font-mono text-f1muted text-xs py-2">
+                  No scores yet
+                </p>
+              )}
+            </div>
           )}
         </div>
       ))}
     </div>
-  )
+  );
 }
