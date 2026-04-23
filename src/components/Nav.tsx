@@ -8,6 +8,7 @@ const links = [
   { href: '/leagues', label: 'Leagues' },
   { href: '/race',    label: 'Races' },
   { href: '/predict', label: 'Predict' },
+  { href: '/help',    label: 'Help' },
   { href: '/admin',   label: 'Admin' },
 ]
 
