@@ -1,46 +1,83 @@
-'use client'
-import { createContext, useContext, useEffect, useState } from 'react'
-import type { User } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+"use client";
+import { createContext, useContext, useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 interface AuthCtx {
-  user: User | null
-  loading: boolean
-  signIn: (email: string, password: string) => Promise<string | null>
-  signOut: () => Promise<void>
+  user: User | null;
+  isAdmin: boolean;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<string | null>;
+  signOut: () => Promise<void>;
 }
 
 const Ctx = createContext<AuthCtx>({
-  user: null, loading: true,
+  user: null,
+  isAdmin: false,
+  loading: true,
   signIn: async () => null,
   signOut: async () => {},
-})
+});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser]       = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const fetchAdminStatus = async (userId: string) => {
+    try {
+      const res = await fetch(`${API}/players/me`, {
+        headers: { "X-Player-Id": userId },
+      });
+      if (res.ok) {
+        const player = await res.json();
+        setIsAdmin(player.is_admin ?? false);
+      }
+    } catch {
+      setIsAdmin(false);
+    }
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null)
-      setLoading(false)
-    })
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null)
-    })
-    return () => subscription.unsubscribe()
-  }, [])
+      const u = data.session?.user ?? null;
+      setUser(u);
+      if (u) fetchAdminStatus(u.id);
+      setLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_, session) => {
+      const u = session?.user ?? null;
+      setUser(u);
+      if (u) fetchAdminStatus(u.id);
+      else setIsAdmin(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    return error ? error.message : null
-  }
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    return error ? error.message : null;
+  };
 
   const signOut = async () => {
-    await supabase.auth.signOut()
-  }
+    await supabase.auth.signOut();
+    setIsAdmin(false);
+  };
 
-  return <Ctx.Provider value={{ user, loading, signIn, signOut }}>{children}</Ctx.Provider>
+  return (
+    <Ctx.Provider value={{ user, isAdmin, loading, signIn, signOut }}>
+      {children}
+    </Ctx.Provider>
+  );
 }
 
-export const useAuth = () => useContext(Ctx)
+export const useAuth = () => useContext(Ctx);
