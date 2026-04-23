@@ -1,17 +1,18 @@
 import Link from 'next/link'
 
 const scoring = [
-  { category: 'Pole Position',       exact: '?',  notes: 'Correct driver gets full points' },
-  { category: '1st Place',           exact: '?',  notes: '' },
-  { category: '2nd Place',           exact: '?',  notes: '' },
-  { category: '3rd Place',           exact: '?',  notes: '' },
-  { category: 'Podium Bonus',        exact: '?',  notes: 'Bonus if all 3 podium picks are correct' },
-  { category: 'Last Place',          exact: '?',  notes: 'Correct driver gets full points' },
-  { category: 'Fastest Lap',         exact: '?',  notes: '' },
-  { category: 'Fastest Pitstop',     exact: '?',  notes: 'Team, not driver' },
-  { category: 'Driver of the Day',   exact: '?',  notes: '' },
-  { category: 'Most Positions Gained', exact: '?', notes: '' },
-  { category: 'Safety Car',          exact: '?',  notes: 'Yes / No — binary' },
+  { category: 'Pole Position',         pts: '5',  notes: 'Exact driver match' },
+  { category: '1st Place',             pts: '10', notes: 'Exact driver match' },
+  { category: '2nd Place',             pts: '8',  notes: 'Exact driver match' },
+  { category: '3rd Place',             pts: '6',  notes: 'Exact driver match' },
+  { category: 'Podium — wrong slot',   pts: '4',  notes: 'Driver on podium but wrong position (per driver)' },
+  { category: 'Podium Bonus',          pts: '5',  notes: 'All three podium drivers correct in any order' },
+  { category: 'Last Place',            pts: '5',  notes: 'Exact driver match' },
+  { category: 'Fastest Lap',           pts: '4',  notes: 'Exact driver match' },
+  { category: 'Fastest Pitstop',       pts: '4',  notes: 'Team, not driver' },
+  { category: 'Driver of the Day',     pts: '4',  notes: 'Exact driver match' },
+  { category: 'Safety Car',            pts: '4',  notes: 'Yes / No — binary' },
+  { category: 'Most Positions Gained', pts: '6',  notes: 'Exact driver match' },
 ]
 
 export default function HelpPage() {
@@ -53,10 +54,10 @@ export default function HelpPage() {
               </tr>
             </thead>
             <tbody>
-              {scoring.map(({ category, exact, notes }, i) => (
+              {scoring.map(({ category, pts, notes }, i) => (
                 <tr key={category} className={i % 2 === 0 ? 'bg-f1mid/20' : ''}>
                   <td className="px-4 py-2.5 text-f1white">{category}</td>
-                  <td className="px-4 py-2.5 text-right text-f1red font-bold">{exact}</td>
+                  <td className="px-4 py-2.5 text-right text-f1red font-bold">{pts}</td>
                   <td className="hidden sm:table-cell px-4 py-2.5 text-f1muted">{notes}</td>
                 </tr>
               ))}
