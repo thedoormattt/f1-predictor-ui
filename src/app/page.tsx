@@ -5,17 +5,49 @@ export const revalidate = 300;
 const OPENF1 = "https://api.openf1.org/v1";
 
 async function getChampionshipStandings(sessionKey: number) {
-  const [driversRes, constructorsRes] = await Promise.all([
+  const [driversRes, constructorsRes, driverInfoRes] = await Promise.all([
     fetch(`${OPENF1}/championship_drivers?session_key=${sessionKey}`, {
       next: { revalidate: 3600 },
     }),
     fetch(`${OPENF1}/championship_teams?session_key=${sessionKey}`, {
       next: { revalidate: 3600 },
     }),
+    fetch(`${OPENF1}/drivers?session_key=${sessionKey}`, {
+      next: { revalidate: 3600 },
+    }),
   ]);
   const drivers = await driversRes.json();
   const constructors = await constructorsRes.json();
-  return { drivers, constructors };
+  const driverInfo = await driverInfoRes.json();
+
+  // Build lookup: driver_number -> { acronym, team }
+  const driverMap: Record<number, { acronym: string; team: string }> = {};
+  for (const d of driverInfo) {
+    driverMap[d.driver_number] = {
+      acronym: d.name_acronym,
+      team: d.team_name,
+    };
+  }
+
+  // Merge
+  const mergedDrivers = drivers
+    .map((d: any) => ({
+      position: d.position_current,
+      points: d.points_current,
+      acronym: driverMap[d.driver_number]?.acronym ?? `#${d.driver_number}`,
+      team: driverMap[d.driver_number]?.team ?? "",
+    }))
+    .sort((a: any, b: any) => a.position - b.position);
+
+  const mergedConstructors = constructors
+    .map((c: any) => ({
+      position: c.position_current,
+      points: c.points_current,
+      team: c.team_name,
+    }))
+    .sort((a: any, b: any) => a.position - b.position);
+
+  return { drivers: mergedDrivers, constructors: mergedConstructors };
 }
 
 export default async function Home() {
@@ -117,7 +149,7 @@ export default async function Home() {
           <div className="card overflow-hidden">
             {drivers.map((d: any, i: number) => (
               <div
-                key={d.driver_number}
+                key={i}
                 className="flex items-center gap-3 px-4 py-3 border-b border-f1mid last:border-0"
               >
                 <span className={`pos-badge pos-${i < 3 ? i + 1 : "n"}`}>
@@ -125,11 +157,9 @@ export default async function Home() {
                 </span>
                 <div className="flex-1">
                   <p className="font-display font-bold uppercase tracking-wide text-sm">
-                    {d.driver_acronym}
+                    {d.acronym}
                   </p>
-                  <p className="font-mono text-f1muted text-xs">
-                    {d.team_name}
-                  </p>
+                  <p className="font-mono text-f1muted text-xs">{d.team}</p>
                 </div>
                 <span className="font-display font-black text-xl">
                   {d.points}
@@ -153,14 +183,14 @@ export default async function Home() {
           <div className="card overflow-hidden">
             {constructors.map((c: any, i: number) => (
               <div
-                key={c.team_name}
+                key={i}
                 className="flex items-center gap-3 px-4 py-3 border-b border-f1mid last:border-0"
               >
                 <span className={`pos-badge pos-${i < 3 ? i + 1 : "n"}`}>
                   {c.position}
                 </span>
                 <span className="font-display font-bold uppercase tracking-wide text-sm flex-1">
-                  {c.team_name}
+                  {c.team}
                 </span>
                 <span className="font-display font-black text-xl">
                   {c.points}
