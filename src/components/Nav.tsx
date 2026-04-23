@@ -13,6 +13,7 @@ export default function Nav() {
     { href: "/leagues", label: "Leagues" },
     { href: "/race", label: "Races" },
     { href: "/predict", label: "Predict" },
+    { href: "/help", label: "Help" },
     ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 
