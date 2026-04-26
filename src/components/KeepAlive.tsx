@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-const INTERVAL = 10 * 60 * 1000; // 10 minutes
+const INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 export default function KeepAlive() {
   useEffect(() => {
