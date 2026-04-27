@@ -4,6 +4,27 @@ export const revalidate = 300;
 
 const OPENF1 = "https://api.openf1.org/v1";
 
+const TEAM_COLORS: Record<string, string> = {
+  Mercedes: "#00D2BE",
+  Ferrari: "#E8002D",
+  McLaren: "#FF8000",
+  "Red Bull Racing": "#3671C6",
+  "Aston Martin": "#358C75",
+  Alpine: "#FF87BC",
+  Haas: "#B6BABD",
+  "Racing Bulls": "#6692FF",
+  Williams: "#64C4FF",
+  Audi: "#B5B5B5",
+  Cadillac: "#CE0000",
+};
+
+function getTeamColor(teamName: string): string {
+  for (const [key, color] of Object.entries(TEAM_COLORS)) {
+    if (teamName.toLowerCase().includes(key.toLowerCase())) return color;
+  }
+  return "#6B6B6B";
+}
+
 async function getChampionshipStandings(sessionKey: number) {
   const [driversRes, constructorsRes, driverInfoRes] = await Promise.all([
     fetch(`${OPENF1}/championship_drivers?session_key=${sessionKey}`, {
@@ -20,7 +41,6 @@ async function getChampionshipStandings(sessionKey: number) {
   const constructors = await constructorsRes.json();
   const driverInfo = await driverInfoRes.json();
 
-  // Build lookup: driver_number -> { acronym, team }
   const driverMap: Record<number, { acronym: string; team: string }> = {};
   for (const d of driverInfo) {
     driverMap[d.driver_number] = {
@@ -29,7 +49,6 @@ async function getChampionshipStandings(sessionKey: number) {
     };
   }
 
-  // Merge
   const mergedDrivers = drivers
     .map((d: any) => ({
       position: d.position_current,
@@ -155,6 +174,10 @@ export default async function Home() {
                 <span className={`pos-badge pos-${i < 3 ? i + 1 : "n"}`}>
                   {d.position}
                 </span>
+                <div
+                  className="w-1 h-8 rounded-full shrink-0"
+                  style={{ background: getTeamColor(d.team) }}
+                />
                 <div className="flex-1">
                   <p className="font-display font-bold uppercase tracking-wide text-sm">
                     {d.acronym}
@@ -180,6 +203,67 @@ export default async function Home() {
           <h2 className="font-display font-bold text-2xl uppercase tracking-wide">
             Constructors Championship
           </h2>
+
+          {/* Podium — 2nd, 1st, 3rd */}
+          {constructors.length >= 3 && (
+            <div className="grid grid-cols-3 gap-2 items-end">
+              {/* 2nd */}
+              <div className="card p-4 text-center space-y-2">
+                <div
+                  className="w-8 h-8 rounded-full mx-auto"
+                  style={{ background: getTeamColor(constructors[1].team) }}
+                />
+                <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
+                  {constructors[1].team}
+                </p>
+                <p className="font-display font-black text-2xl">
+                  {constructors[1].points}
+                </p>
+                <div className="font-mono text-xs text-f1muted bg-f1mid rounded px-2 py-0.5 inline-block">
+                  2nd
+                </div>
+              </div>
+
+              {/* 1st */}
+              <div
+                className="card p-4 text-center space-y-2 border-t-2"
+                style={{ borderTopColor: getTeamColor(constructors[0].team) }}
+              >
+                <div
+                  className="w-10 h-10 rounded-full mx-auto"
+                  style={{ background: getTeamColor(constructors[0].team) }}
+                />
+                <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
+                  {constructors[0].team}
+                </p>
+                <p className="font-display font-black text-3xl">
+                  {constructors[0].points}
+                </p>
+                <div className="font-mono text-xs text-f1white bg-f1red rounded px-2 py-0.5 inline-block">
+                  1st
+                </div>
+              </div>
+
+              {/* 3rd */}
+              <div className="card p-4 text-center space-y-2">
+                <div
+                  className="w-8 h-8 rounded-full mx-auto"
+                  style={{ background: getTeamColor(constructors[2].team) }}
+                />
+                <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
+                  {constructors[2].team}
+                </p>
+                <p className="font-display font-black text-2xl">
+                  {constructors[2].points}
+                </p>
+                <div className="font-mono text-xs text-f1muted bg-f1mid rounded px-2 py-0.5 inline-block">
+                  3rd
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Full table */}
           <div className="card overflow-hidden">
             {constructors.map((c: any, i: number) => (
               <div
@@ -189,6 +273,10 @@ export default async function Home() {
                 <span className={`pos-badge pos-${i < 3 ? i + 1 : "n"}`}>
                   {c.position}
                 </span>
+                <div
+                  className="w-1 h-8 rounded-full shrink-0"
+                  style={{ background: getTeamColor(c.team) }}
+                />
                 <span className="font-display font-bold uppercase tracking-wide text-sm flex-1">
                   {c.team}
                 </span>
