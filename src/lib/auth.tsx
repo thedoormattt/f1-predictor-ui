@@ -28,8 +28,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchAdminStatus = async (userId: string) => {
     try {
+      // Get fresh session to ensure token is available
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token) return;
+
       const res = await fetch(`${API}/players/me`, {
-        headers: { "X-Player-Id": userId },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
       if (res.ok) {
         const player = await res.json();
