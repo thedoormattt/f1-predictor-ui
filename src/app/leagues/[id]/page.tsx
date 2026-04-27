@@ -40,7 +40,7 @@ export default function LeaguePage({
   useEffect(() => {
     if (!user) return;
     Promise.all([
-      fetchWithAuth(`$/leagues`, { headers: { "X-Player-Id": user.id } })
+      fetchWithAuth(`/leagues`, { headers: { "X-Player-Id": user.id } })
         .then((r) => r.json())
         .then(
           (leagues: League[]) => leagues.find((l) => l.id === leagueId) ?? null,
