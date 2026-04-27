@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { LeaderboardEntry } from "@/types";
 import clsx from "clsx";
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
 interface ScoreBreakdown {
   race_key: string;
@@ -44,7 +45,7 @@ export default function LeaderboardTable({
     setLoading(playerId);
     try {
       const [scoresRes, racesRes] = await Promise.all([
-        fetch(`${API}/players/${playerId}/scores`).then((r) => r.json()),
+        fetchWithAuth(`/players/${playerId}/scores`).then((r) => r.json()),
         fetch(`${API}/races`).then((r) => r.json()),
       ]);
       const raceMap = Object.fromEntries(racesRes.map((r: any) => [r.id, r]));
