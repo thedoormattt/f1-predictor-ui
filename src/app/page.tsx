@@ -165,6 +165,76 @@ export default async function Home() {
           <h2 className="font-display font-bold text-2xl uppercase tracking-wide">
             Drivers Championship
           </h2>
+
+          {/* Podium — 2nd, 1st, 3rd */}
+          {drivers.length >= 3 && (
+            <div className="grid grid-cols-3 gap-2 items-end">
+              {/* 2nd */}
+              <div className="card p-4 text-center space-y-2">
+                <div
+                  className="w-8 h-8 rounded-full mx-auto"
+                  style={{ background: getTeamColor(drivers[1].team) }}
+                />
+                <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
+                  {drivers[1].acronym}
+                </p>
+                <p className="font-mono text-f1muted text-[10px]">
+                  {drivers[1].team}
+                </p>
+                <p className="font-display font-black text-2xl">
+                  {drivers[1].points}
+                </p>
+                <div className="font-mono text-xs text-f1muted bg-f1mid rounded px-2 py-0.5 inline-block">
+                  2nd
+                </div>
+              </div>
+
+              {/* 1st */}
+              <div
+                className="card p-4 text-center space-y-2 border-t-2"
+                style={{ borderTopColor: getTeamColor(drivers[0].team) }}
+              >
+                <div
+                  className="w-10 h-10 rounded-full mx-auto"
+                  style={{ background: getTeamColor(drivers[0].team) }}
+                />
+                <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
+                  {drivers[0].acronym}
+                </p>
+                <p className="font-mono text-f1muted text-[10px]">
+                  {drivers[0].team}
+                </p>
+                <p className="font-display font-black text-3xl">
+                  {drivers[0].points}
+                </p>
+                <div className="font-mono text-xs text-f1white bg-f1red rounded px-2 py-0.5 inline-block">
+                  1st
+                </div>
+              </div>
+
+              {/* 3rd */}
+              <div className="card p-4 text-center space-y-2">
+                <div
+                  className="w-8 h-8 rounded-full mx-auto"
+                  style={{ background: getTeamColor(drivers[2].team) }}
+                />
+                <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
+                  {drivers[2].acronym}
+                </p>
+                <p className="font-mono text-f1muted text-[10px]">
+                  {drivers[2].team}
+                </p>
+                <p className="font-display font-black text-2xl">
+                  {drivers[2].points}
+                </p>
+                <div className="font-mono text-xs text-f1muted bg-f1mid rounded px-2 py-0.5 inline-block">
+                  3rd
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Full table */}
           <div className="card overflow-hidden">
             {drivers.map((d: any, i: number) => (
               <div
