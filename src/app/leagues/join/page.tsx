@@ -4,8 +4,6 @@ import { useAuth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
 export default function JoinLeaguePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -25,7 +23,7 @@ export default function JoinLeaguePage() {
 
     try {
       const res = await fetchWithAuth(
-        `${API}/leagues/join?invite_code=${code.trim().toUpperCase()}`,
+        `/leagues/join?invite_code=${code.trim().toUpperCase()}`,
         {
           method: "POST",
           headers: { "X-Player-Id": user.id },

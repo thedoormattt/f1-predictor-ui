@@ -5,8 +5,6 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
 export default function SignupPage() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
@@ -23,7 +21,7 @@ export default function SignupPage() {
     setNameChecking(true);
     setUsernameTaken(false);
     try {
-      const res = await fetchWithAuth(`${API}/players`);
+      const res = await fetchWithAuth(`/players`);
       if (res.ok) {
         const players: { username: string }[] = await res.json();
         setUsernameTaken(
@@ -65,7 +63,7 @@ export default function SignupPage() {
 
     // 2. Create player row via API
     try {
-      const res = await fetchWithAuth(`${API}/players`, {
+      const res = await fetchWithAuth(`/players`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -6,8 +6,6 @@ import { getRaces, getDrivers } from "@/lib/api";
 import type { Race, Driver } from "@/types";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
 export default function AdminPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -35,7 +33,7 @@ export default function AdminPage() {
     setBusy(true);
     setStatus(null);
     try {
-      const res = await fetchWithAuth(`${API}${path}`, {
+      const res = await fetchWithAuth(`${path}`, {
         method: "POST",
         headers: { "X-Admin-Secret": secret },
       });
@@ -56,7 +54,7 @@ export default function AdminPage() {
     setBusy(true);
     setStatus(null);
     try {
-      const res = await fetchWithAuth(`${API}${path}`, {
+      const res = await fetchWithAuth(`${path}`, {
         method: "PATCH",
         headers: { "X-Admin-Secret": secret },
       });
@@ -119,13 +117,10 @@ export default function AdminPage() {
               setBusy(true);
               setStatus(null);
               try {
-                const res = await fetchWithAuth(
-                  `${API}/results/admin/score-all`,
-                  {
-                    method: "POST",
-                    headers: { "X-Admin-Secret": secret },
-                  },
-                );
+                const res = await fetchWithAuth(`/results/admin/score-all`, {
+                  method: "POST",
+                  headers: { "X-Admin-Secret": secret },
+                });
                 if (!res.ok) {
                   const err = await res.json();
                   setStatus(`❌ ${err.detail ?? "Error"}`);

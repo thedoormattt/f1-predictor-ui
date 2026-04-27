@@ -27,7 +27,7 @@ export default function LeaguesPage() {
 
   useEffect(() => {
     if (!user) return;
-    fetchWithAuth(`${API}/leagues`, {
+    fetchWithAuth(`/leagues`, {
       headers: { "X-Player-Id": user.id },
     })
       .then((r) => r.json())

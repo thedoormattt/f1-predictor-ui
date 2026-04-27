@@ -4,8 +4,6 @@ import { useAuth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
 export default function CreateLeaguePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -24,7 +22,7 @@ export default function CreateLeaguePage() {
     setError(null);
 
     try {
-      const res = await fetchWithAuth(`${API}/leagues`, {
+      const res = await fetchWithAuth(`/leagues`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
