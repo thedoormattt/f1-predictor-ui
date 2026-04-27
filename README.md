@@ -26,7 +26,7 @@ cp .env.local.example .env.local
 # Fill in:
 #   NEXT_PUBLIC_API_URL=http://localhost:8000  (your FastAPI backend)
 #   NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-#   SUPABASE_ANON_KEY=your-anon-key   ← NOT service key
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key   ← NOT service key
 
 npm run dev
 # → http://localhost:3000
