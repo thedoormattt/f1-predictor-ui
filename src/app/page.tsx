@@ -4,23 +4,23 @@ export const revalidate = 300;
 
 const OPENF1 = "https://api.openf1.org/v1";
 
-const TEAM_COLORS: Record<string, string> = {
-  Mercedes: "#00D2BE",
+const TEAM_COLOURS: Record<string, string> = {
+  Mercedes: "#6CD3BF",
   Ferrari: "#E8002D",
   McLaren: "#FF8000",
-  "Red Bull Racing": "#3671C6",
-  "Aston Martin": "#358C75",
-  Alpine: "#FF87BC",
   Haas: "#B6BABD",
+  Alpine: "#2293D1",
+  "Red Bull Racing": "#3671C6",
   "Racing Bulls": "#6692FF",
-  Williams: "#64C4FF",
-  Audi: "#B5B5B5",
-  Cadillac: "#CE0000",
+  Audi: "#C0392B",
+  Williams: "#1B6AC2",
+  Cadillac: "#8A8A8A",
+  "Aston Martin": "#358C75",
 };
 
 function getTeamColor(teamName: string): string {
-  for (const [key, color] of Object.entries(TEAM_COLORS)) {
-    if (teamName.toLowerCase().includes(key.toLowerCase())) return color;
+  for (const [key, colour] of Object.entries(TEAM_COLOURS)) {
+    if (teamName.toLowerCase().includes(key.toLowerCase())) return colour;
   }
   return "#6B6B6B";
 }
