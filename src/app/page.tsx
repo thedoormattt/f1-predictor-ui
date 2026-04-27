@@ -18,7 +18,7 @@ const TEAM_COLOURS: Record<string, string> = {
   "Aston Martin": "#358C75",
 };
 
-function getTeamColor(teamName: string): string {
+function getTeamColour(teamName: string): string {
   for (const [key, colour] of Object.entries(TEAM_COLOURS)) {
     if (teamName.toLowerCase().includes(key.toLowerCase())) return colour;
   }
@@ -41,11 +41,22 @@ async function getChampionshipStandings(sessionKey: number) {
   const constructors = await constructorsRes.json();
   const driverInfo = await driverInfoRes.json();
 
-  const driverMap: Record<number, { acronym: string; team: string }> = {};
+  const driverMap: Record<
+    number,
+    {
+      acronym: string;
+      full_name: string;
+      team: string;
+      colour: string;
+    }
+  > = {};
+
   for (const d of driverInfo) {
     driverMap[d.driver_number] = {
       acronym: d.name_acronym,
+      full_name: `${d.first_name} ${d.last_name}`,
       team: d.team_name,
+      colour: d.team_colour ? `#${d.team_colour}` : "#6B6B6B",
     };
   }
 
@@ -54,7 +65,9 @@ async function getChampionshipStandings(sessionKey: number) {
       position: d.position_current,
       points: d.points_current,
       acronym: driverMap[d.driver_number]?.acronym ?? `#${d.driver_number}`,
+      full_name: driverMap[d.driver_number]?.full_name ?? `#${d.driver_number}`,
       team: driverMap[d.driver_number]?.team ?? "",
+      colour: driverMap[d.driver_number]?.colour ?? "#6B6B6B",
     }))
     .sort((a: any, b: any) => a.position - b.position);
 
@@ -173,10 +186,10 @@ export default async function Home() {
               <div className="card p-4 text-center space-y-2">
                 <div
                   className="w-8 h-8 rounded-full mx-auto"
-                  style={{ background: getTeamColor(drivers[1].team) }}
+                  style={{ background: drivers[1].colour }}
                 />
                 <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
-                  {drivers[1].acronym}
+                  {drivers[1].full_name}
                 </p>
                 <p className="font-mono text-f1muted text-[10px]">
                   {drivers[1].team}
@@ -192,14 +205,14 @@ export default async function Home() {
               {/* 1st */}
               <div
                 className="card p-4 text-center space-y-2 border-t-2"
-                style={{ borderTopColor: getTeamColor(drivers[0].team) }}
+                style={{ borderTopColor: drivers[0].colour }}
               >
                 <div
                   className="w-10 h-10 rounded-full mx-auto"
-                  style={{ background: getTeamColor(drivers[0].team) }}
+                  style={{ background: drivers[0].colour }}
                 />
                 <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
-                  {drivers[0].acronym}
+                  {drivers[0].full_name}
                 </p>
                 <p className="font-mono text-f1muted text-[10px]">
                   {drivers[0].team}
@@ -216,10 +229,10 @@ export default async function Home() {
               <div className="card p-4 text-center space-y-2">
                 <div
                   className="w-8 h-8 rounded-full mx-auto"
-                  style={{ background: getTeamColor(drivers[2].team) }}
+                  style={{ background: drivers[2].colour }}
                 />
                 <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
-                  {drivers[2].acronym}
+                  {drivers[2].full_name}
                 </p>
                 <p className="font-mono text-f1muted text-[10px]">
                   {drivers[2].team}
@@ -246,11 +259,11 @@ export default async function Home() {
                 </span>
                 <div
                   className="w-1 h-8 rounded-full shrink-0"
-                  style={{ background: getTeamColor(d.team) }}
+                  style={{ background: d.colour }}
                 />
                 <div className="flex-1">
                   <p className="font-display font-bold uppercase tracking-wide text-sm">
-                    {d.acronym}
+                    {d.full_name}
                   </p>
                   <p className="font-mono text-f1muted text-xs">{d.team}</p>
                 </div>
@@ -281,7 +294,7 @@ export default async function Home() {
               <div className="card p-4 text-center space-y-2">
                 <div
                   className="w-8 h-8 rounded-full mx-auto"
-                  style={{ background: getTeamColor(constructors[1].team) }}
+                  style={{ background: getTeamColour(constructors[1].team) }}
                 />
                 <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
                   {constructors[1].team}
@@ -297,11 +310,11 @@ export default async function Home() {
               {/* 1st */}
               <div
                 className="card p-4 text-center space-y-2 border-t-2"
-                style={{ borderTopColor: getTeamColor(constructors[0].team) }}
+                style={{ borderTopColor: getTeamColour(constructors[0].team) }}
               >
                 <div
                   className="w-10 h-10 rounded-full mx-auto"
-                  style={{ background: getTeamColor(constructors[0].team) }}
+                  style={{ background: getTeamColour(constructors[0].team) }}
                 />
                 <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
                   {constructors[0].team}
@@ -318,7 +331,7 @@ export default async function Home() {
               <div className="card p-4 text-center space-y-2">
                 <div
                   className="w-8 h-8 rounded-full mx-auto"
-                  style={{ background: getTeamColor(constructors[2].team) }}
+                  style={{ background: getTeamColour(constructors[2].team) }}
                 />
                 <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
                   {constructors[2].team}
@@ -345,7 +358,7 @@ export default async function Home() {
                 </span>
                 <div
                   className="w-1 h-8 rounded-full shrink-0"
-                  style={{ background: getTeamColor(c.team) }}
+                  style={{ background: getTeamColour(c.team) }}
                 />
                 <span className="font-display font-bold uppercase tracking-wide text-sm flex-1">
                   {c.team}
