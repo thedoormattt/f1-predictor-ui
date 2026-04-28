@@ -11,10 +11,10 @@ const TEAMS: Record<string, TeamData> = {
   Alpine: { colour: "#2293D1", logo: null },
   "Red Bull Racing": { colour: "#3671C6", logo: null },
   "Racing Bulls": { colour: "#6692FF", logo: null },
-  Audi: { colour: "#C0392B", logo: null },
+  Audi: { colour: "#C0392B", logo: "/logos/audi.svg" },
   Williams: { colour: "#1B6AC2", logo: null },
-  Cadillac: { colour: "#8A8A8A", logo: null },
-  "Aston Martin": { colour: "#358C75", logo: null },
+  Cadillac: { colour: "#8A8A8A", logo: "/logos/cadillac.svg" },
+  "Aston Martin": { colour: "#358C75", logo: "/logos/aston-martin.svg" },
 };
 
 function getTeamData(teamName: string): TeamData {

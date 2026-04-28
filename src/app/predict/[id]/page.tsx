@@ -26,6 +26,9 @@ const TEAM_LOGOS: Record<string, string> = {
   Mercedes: "/logos/mercedes.svg",
   Ferrari: "/logos/ferrari.svg",
   McLaren: "/logos/mclaren.svg",
+  "Aston Martin": "/logos/aston-martin.svg",
+  Audi: "/logos/audi.svg",
+  Cadillac: "/logos/cadillac.svg",
   // add others as downloaded
 };
 
