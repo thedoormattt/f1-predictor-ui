@@ -32,11 +32,14 @@ export default function SelectionCarousel({
   const looped = [...items, ...items, ...items];
 
   // Start in the middle copy so we can scroll both ways
+  const hasInitialised = useRef(false);
+
   useEffect(() => {
     const track = trackRef.current;
-    if (!track) return;
+    if (!track || hasInitialised.current) return;
     const itemWidth = track.scrollWidth / 3;
     track.scrollLeft = itemWidth;
+    hasInitialised.current = true;
   }, [items]);
 
   // Infinite loop — when near either end, jump to middle
@@ -45,8 +48,10 @@ export default function SelectionCarousel({
     if (!track) return;
     const itemWidth = track.scrollWidth / 3;
     if (track.scrollLeft < itemWidth * 0.25) {
+      track.style.scrollBehavior = "auto";
       track.scrollLeft += itemWidth;
     } else if (track.scrollLeft > itemWidth * 1.75) {
+      track.style.scrollBehavior = "auto";
       track.scrollLeft -= itemWidth;
     }
   };
@@ -95,7 +100,6 @@ export default function SelectionCarousel({
         disabled && "opacity-40 pointer-events-none",
         "scrollbar-hide",
       )}
-      style={{ scrollBehavior: "auto" }}
     >
       {looped.map((item, i) => {
         const isSelected = item.value === selected;
