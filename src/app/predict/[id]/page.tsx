@@ -191,13 +191,19 @@ export default function PredictRacePage({
     );
 
   // Build carousel items
-  const driverItems = drivers.map((d) => ({
-    value: d.acronym,
-    label: d.full_name.split(" ").pop() ?? d.full_name,
-    sublabel: d.team ?? undefined,
-    image: d.headshot_url ?? null,
-    colour: d.team_colour ?? getTeamColour(d.team ?? ""),
-  }));
+  const driverItems = [...drivers]
+    .sort(
+      (a, b) =>
+        (a.team ?? "").localeCompare(b.team ?? "") ||
+        a.full_name.localeCompare(b.full_name),
+    )
+    .map((d) => ({
+      value: d.acronym,
+      label: d.full_name.split(" ").pop() ?? d.full_name,
+      sublabel: d.team ?? undefined,
+      image: d.headshot_url ?? null,
+      colour: d.team_colour ?? getTeamColour(d.team ?? ""),
+    }));
 
   const teamItems = teams.map((t) => ({
     value: t.acronym,
