@@ -23,7 +23,13 @@ async function getChampionshipStandings(sessionKey: number) {
 
   const driverMap: Record<
     number,
-    { acronym: string; full_name: string; team: string; colour: string }
+    {
+      acronym: string;
+      full_name: string;
+      team: string;
+      colour: string;
+      headshot: string;
+    }
   > = {};
   for (const d of driverInfo) {
     driverMap[d.driver_number] = {
@@ -31,6 +37,7 @@ async function getChampionshipStandings(sessionKey: number) {
       full_name: `${d.first_name} ${d.last_name}`,
       team: d.team_name,
       colour: d.team_colour ? `#${d.team_colour}` : "#6B6B6B",
+      headshot: d.headshot_url ?? null,
     };
   }
 
@@ -42,6 +49,7 @@ async function getChampionshipStandings(sessionKey: number) {
       full_name: driverMap[d.driver_number]?.full_name ?? `#${d.driver_number}`,
       team: driverMap[d.driver_number]?.team ?? "",
       colour: driverMap[d.driver_number]?.colour ?? "#6B6B6B",
+      headshot: driverMap[d.driver_number]?.headshot ?? null,
     }))
     .sort((a: any, b: any) => a.position - b.position);
 
