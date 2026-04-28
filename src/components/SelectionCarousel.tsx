@@ -24,38 +24,57 @@ export default function SelectionCarousel({
   disabled,
 }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const hasInitialised = useRef(false);
+  const hasScrolledToSelection = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
-  // Duplicate items for seamless loop
   const looped = [...items, ...items, ...items];
 
-  // Start in the middle copy so we can scroll both ways
-  const hasInitialised = useRef(false);
+  // Reset scroll-to-selection tracker when selected clears
+  useEffect(() => {
+    if (!selected) {
+      hasScrolledToSelection.current = false;
+    }
+  }, [selected]);
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track || hasInitialised.current) return;
-    hasInitialised.current = true;
+    if (!track) return;
 
-    setTimeout(() => {
-      if (!track) return;
-      const itemWidth = track.scrollWidth / 3;
-      const selectedIndex = items.findIndex((item) => item.value === selected);
-
-      if (selectedIndex >= 0) {
-        const itemEl = track.children[
-          items.length + selectedIndex
-        ] as HTMLElement;
-        if (itemEl) {
-          track.scrollLeft =
-            itemEl.offsetLeft - track.clientWidth / 2 + itemEl.clientWidth / 2;
-          return;
+    // If we have a selection and haven't scrolled to it yet
+    if (selected && !hasScrolledToSelection.current) {
+      hasScrolledToSelection.current = true;
+      setTimeout(() => {
+        if (!track) return;
+        const selectedIndex = items.findIndex(
+          (item) => item.value === selected,
+        );
+        if (selectedIndex >= 0) {
+          const itemEl = track.children[
+            items.length + selectedIndex
+          ] as HTMLElement;
+          if (itemEl) {
+            track.scrollLeft =
+              itemEl.offsetLeft -
+              track.clientWidth / 2 +
+              itemEl.clientWidth / 2;
+            return;
+          }
         }
-      }
-      track.scrollLeft = itemWidth;
-    }, 50);
+      }, 50);
+      return;
+    }
+
+    // No selection — initialise to middle once
+    if (!hasInitialised.current) {
+      hasInitialised.current = true;
+      setTimeout(() => {
+        if (!track) return;
+        track.scrollLeft = track.scrollWidth / 3;
+      }, 50);
+    }
   }, [items, selected]);
 
   // Infinite loop — when near either end, jump to middle
@@ -130,7 +149,6 @@ export default function SelectionCarousel({
                 : "border-f1mid bg-f1grey hover:border-f1light",
             )}
           >
-            {/* Image or colour circle */}
             <div
               className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden shrink-0"
               style={{ background: item.colour }}
@@ -148,7 +166,6 @@ export default function SelectionCarousel({
               )}
             </div>
 
-            {/* Label */}
             <p
               className={clsx(
                 "font-display font-bold text-[10px] uppercase tracking-wide text-center leading-tight",
@@ -163,7 +180,6 @@ export default function SelectionCarousel({
               </p>
             )}
 
-            {/* Selected indicator */}
             {isSelected && (
               <div className="w-1.5 h-1.5 rounded-full bg-f1red" />
             )}
