@@ -1,5 +1,7 @@
+import clsx from "clsx";
 import { getRaces, getResult, getRaceScores } from "@/lib/api";
 import ChampionshipTabs from "@/components/ChampionshipTabs";
+import { getTeamColour } from "@/lib/teams";
 
 export const revalidate = 300;
 
@@ -77,6 +79,26 @@ export default async function Home() {
 
   const latestRace = completedRaces[0] ?? null;
 
+  // Build acronym -> driver info map from enriched drivers
+  const enrichedRes = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/reference/drivers/enriched`,
+    { next: { revalidate: 3600 } },
+  ).catch(() => null);
+
+  const enrichedDrivers = enrichedRes?.ok ? await enrichedRes.json() : [];
+
+  const driverMap: Record<
+    string,
+    { colour: string; headshot: string | null; team: string }
+  > = {};
+  for (const d of enrichedDrivers) {
+    driverMap[d.acronym] = {
+      colour: d.team_colour ?? getTeamColour(d.team ?? ""),
+      headshot: d.headshot_url ?? null,
+      team: d.team ?? "",
+    };
+  }
+
   const [latestResult, standings] = await Promise.all([
     latestRace
       ? getResult(latestRace.id).catch(() => null)
@@ -109,32 +131,121 @@ export default async function Home() {
               {latestRace.location} {latestRace.type}
             </span>
           </h2>
-          <div className="card p-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {latestResult ? (
-              [
-                { label: "Pole", value: latestResult.pole },
-                { label: "1st", value: latestResult.p1 },
-                { label: "2nd", value: latestResult.p2 },
-                { label: "3rd", value: latestResult.p3 },
-                { label: "FL", value: latestResult.fastest_lap },
-                { label: "DotD", value: latestResult.dotd },
-              ].map(
-                ({ label, value }) =>
-                  value && (
-                    <div key={label} className="flex items-center gap-2">
-                      <span className="font-mono text-f1muted text-xs w-10 shrink-0">
-                        {label}
-                      </span>
-                      <span className="driver-chip">{value}</span>
-                    </div>
-                  ),
-              )
-            ) : (
-              <p className="font-mono text-f1muted text-sm col-span-3">
+
+          {latestResult ? (
+            <div className="space-y-3">
+              {/* Podium cards — 2nd, 1st, 3rd */}
+              {latestResult.p1 && latestResult.p2 && latestResult.p3 && (
+                <div className="grid grid-cols-3 gap-2 items-end">
+                  {[
+                    { pos: "2nd", driver: latestResult.p2, isFirst: false },
+                    { pos: "1st", driver: latestResult.p1, isFirst: true },
+                    { pos: "3rd", driver: latestResult.p3, isFirst: false },
+                  ].map(({ pos, driver, isFirst }) => {
+                    const info = driverMap[driver];
+                    return (
+                      <div
+                        key={pos}
+                        className={clsx(
+                          "card p-4 text-center space-y-2",
+                          isFirst && "border-t-2",
+                        )}
+                        style={
+                          isFirst
+                            ? { borderTopColor: info?.colour ?? "#6B6B6B" }
+                            : undefined
+                        }
+                      >
+                        {info?.headshot ? (
+                          <img
+                            src={info.headshot}
+                            alt={driver}
+                            className={clsx(
+                              "rounded-full mx-auto object-cover object-top",
+                              isFirst ? "w-14 h-14" : "w-12 h-12",
+                            )}
+                            style={{ background: info.colour }}
+                          />
+                        ) : (
+                          <div
+                            className={clsx(
+                              "rounded-full mx-auto",
+                              isFirst ? "w-14 h-14" : "w-12 h-12",
+                            )}
+                            style={{ background: info?.colour ?? "#6B6B6B" }}
+                          />
+                        )}
+                        <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
+                          {driver}
+                        </p>
+                        <p className="font-mono text-f1muted text-[10px]">
+                          {info?.team ?? ""}
+                        </p>
+                        <div
+                          className={clsx(
+                            "font-mono text-xs rounded px-2 py-0.5 inline-block",
+                            isFirst
+                              ? "text-f1white bg-f1red"
+                              : "text-f1muted bg-f1mid",
+                          )}
+                        >
+                          {pos}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Other results */}
+              <div className="card overflow-hidden">
+                {[
+                  { label: "Pole", value: latestResult.pole },
+                  { label: "FL", value: latestResult.fastest_lap },
+                  { label: "DotD", value: latestResult.dotd },
+                ]
+                  .filter(({ value }) => value)
+                  .map(({ label, value }) => {
+                    const info = driverMap[value!];
+                    return (
+                      <div
+                        key={label}
+                        className="flex items-center gap-3 px-4 py-3 border-b border-f1mid last:border-0"
+                      >
+                        <span className="font-mono text-f1muted text-xs w-10 shrink-0">
+                          {label}
+                        </span>
+                        {info?.headshot ? (
+                          <img
+                            src={info.headshot}
+                            alt={value!}
+                            className="w-7 h-7 rounded-full object-cover object-top shrink-0"
+                            style={{ background: info.colour }}
+                          />
+                        ) : (
+                          <div
+                            className="w-7 h-7 rounded-full shrink-0"
+                            style={{ background: info?.colour ?? "#6B6B6B" }}
+                          />
+                        )}
+                        <span className="font-display font-bold uppercase tracking-wide text-sm flex-1">
+                          {value}
+                        </span>
+                        <span className="font-mono text-f1muted text-xs">
+                          {info?.team ?? ""}
+                        </span>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          ) : (
+            <div className="card p-5">
+              <p className="font-mono text-f1muted text-sm">
                 Result not yet entered
               </p>
-            )}
-          </div>
+            </div>
+          )}
         </section>
       )}
 

@@ -104,9 +104,3 @@ export interface Team {
   name: string;
   acronym: string;
 }
-
-export interface TeamData {
-  colour: string;
-  logo: string | null;
-  whiteBg?: boolean;
-}

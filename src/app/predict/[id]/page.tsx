@@ -7,46 +7,7 @@ import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import SelectionCarousel from "@/components/SelectionCarousel";
 import type { Race, Team, Prediction, EnrichedDriver } from "@/types";
 import clsx from "clsx";
-
-const TEAM_COLOURS: Record<string, string> = {
-  Mercedes: "#6CD3BF",
-  Ferrari: "#E8002D",
-  McLaren: "#FF8000",
-  Haas: "#B6BABD",
-  Alpine: "#2293D1",
-  "Red Bull Racing": "#3671C6",
-  "Racing Bulls": "#6692FF",
-  Audi: "#C0392B",
-  Williams: "#1B6AC2",
-  Cadillac: "#8A8A8A",
-  "Aston Martin": "#358C75",
-};
-
-const TEAM_LOGOS: Record<string, string> = {
-  Mercedes: "/logos/mercedes.svg",
-  Ferrari: "/logos/ferrari.svg",
-  McLaren: "/logos/mclaren.svg",
-  "Aston Martin": "/logos/aston-martin.svg",
-  Audi: "/logos/audi.svg",
-  Cadillac: "/logos/cadillac.svg",
-  Williams: "/logos/williams.svg",
-  Haas: "/logos/haas.svg",
-  // add others as downloaded
-};
-
-function getTeamColour(name: string): string {
-  for (const [k, v] of Object.entries(TEAM_COLOURS)) {
-    if (name.toLowerCase().includes(k.toLowerCase())) return v;
-  }
-  return "#6B6B6B";
-}
-
-function getTeamLogo(name: string): string | null {
-  for (const [k, v] of Object.entries(TEAM_LOGOS)) {
-    if (name.toLowerCase().includes(k.toLowerCase())) return v;
-  }
-  return null;
-}
+import { getTeamColour, getTeamLogo } from "@/lib/teams";
 
 interface FormState {
   pole: string;
