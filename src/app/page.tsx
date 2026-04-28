@@ -201,7 +201,15 @@ export default async function Home() {
               <div className="card overflow-hidden">
                 {[
                   { label: "Pole", value: latestResult.pole },
-                  { label: "FL", value: latestResult.fastest_lap },
+                  { label: "Fastest Lap", value: latestResult.fastest_lap },
+                  {
+                    label: "Fastest Pitstop",
+                    value: latestResult.fastest_pitstop,
+                  },
+                  {
+                    label: "Positions Gained",
+                    value: latestResult.pos_gained_winner,
+                  },
                   { label: "DotD", value: latestResult.dotd },
                 ]
                   .filter(({ value }) => value)
