@@ -169,11 +169,22 @@ export default function PredictRacePage({
     }
   };
 
-  if (loading || !user || !race)
+  if (loading)
     return (
       <div className="flex items-center justify-center h-64">
         <div className="font-mono text-f1muted text-sm animate-pulse">
           Loading…
+        </div>
+      </div>
+    );
+
+  if (!user) return null;
+
+  if (!race)
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="font-mono text-f1muted text-sm animate-pulse">
+          Loading race…
         </div>
       </div>
     );
