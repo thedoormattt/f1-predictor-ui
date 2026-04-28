@@ -220,7 +220,7 @@ export default async function Home() {
                         key={label}
                         className="flex items-center gap-3 px-4 py-3 border-b border-f1mid last:border-0"
                       >
-                        <span className="font-mono text-f1muted text-xs w-10 shrink-0">
+                        <span className="font-mono text-f1muted text-xs w-24 shrink-0 whitespace-nowrap">
                           {label}
                         </span>
                         {info?.headshot ? (
