@@ -88,11 +88,15 @@ function PodiumCard({
           style={{ background: colour }}
         />
       ) : logo ? (
-        <img
-          src={logo}
-          alt={name}
-          className={clsx(imgSize, "mx-auto object-contain")}
-        />
+        <div
+          className={clsx(
+            imgSize,
+            "rounded-full mx-auto flex items-center justify-center p-2",
+          )}
+          style={{ background: colour }}
+        >
+          <img src={logo} alt={name} className="w-full h-full object-contain" />
+        </div>
       ) : (
         <div
           className={clsx(imgSize, "rounded-full mx-auto")}
