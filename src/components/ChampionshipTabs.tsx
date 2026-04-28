@@ -5,11 +5,12 @@ import clsx from "clsx";
 interface TeamData {
   colour: string;
   logo: string | null;
+  whiteBg?: boolean;
 }
 
 const TEAMS: Record<string, TeamData> = {
   Mercedes: { colour: "#6CD3BF", logo: "/logos/mercedes.svg" },
-  Ferrari: { colour: "#E8002D", logo: "/logos/ferrari.svg" },
+  Ferrari: { colour: "#E8002D", logo: "/logos/ferrari.svg", whiteBg: true },
   McLaren: { colour: "#FF8000", logo: "/logos/mclaren.svg" },
   Haas: { colour: "#B6BABD", logo: null },
   Alpine: { colour: "#2293D1", logo: null },
@@ -57,6 +58,7 @@ function PodiumCard({
   position,
   headshot,
   logo,
+  whiteBg,
 }: {
   name: string;
   subtext?: string;
@@ -65,6 +67,7 @@ function PodiumCard({
   position: 1 | 2 | 3;
   headshot?: string | null;
   logo?: string | null;
+  whiteBg?: boolean;
 }) {
   const isFirst = position === 1;
   const imgSize = isFirst ? "w-14 h-14" : "w-12 h-12";
@@ -95,7 +98,12 @@ function PodiumCard({
           )}
           style={{ background: colour }}
         >
-          <img src={logo} alt={name} className="w-full h-full object-contain" />
+          <img
+            src={logo}
+            alt={name}
+            className="w-full h-full object-contain"
+            style={whiteBg ? { mixBlendMode: "multiply" } : undefined}
+          />
         </div>
       ) : (
         <div
