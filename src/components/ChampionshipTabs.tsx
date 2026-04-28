@@ -9,7 +9,7 @@ interface TeamData {
 }
 
 const TEAMS: Record<string, TeamData> = {
-  Mercedes: { colour: "#6CD3BF", logo: "/logos/mercedes.svg" },
+  Mercedes: { colour: "#6CD3BF", logo: "/logos/mercedes-grey.svg" },
   Ferrari: { colour: "#E8002D", logo: "/logos/ferrari.svg" },
   McLaren: { colour: "#FF8000", logo: "/logos/mclaren.svg" },
   Haas: { colour: "#B6BABD", logo: null },
