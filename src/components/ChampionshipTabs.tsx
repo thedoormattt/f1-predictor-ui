@@ -1,15 +1,10 @@
 "use client";
 import { useState } from "react";
 import clsx from "clsx";
-
-interface TeamData {
-  colour: string;
-  logo: string | null;
-  whiteBg?: boolean;
-}
+import { TeamData } from "@/types";
 
 const TEAMS: Record<string, TeamData> = {
-  Mercedes: { colour: "#6CD3BF", logo: "/logos/mercedes-grey.svg" },
+  Mercedes: { colour: "#6CD3BF", logo: "/logos/mercedes.svg" },
   Ferrari: { colour: "#E8002D", logo: "/logos/ferrari.svg" },
   McLaren: { colour: "#FF8000", logo: "/logos/mclaren.svg" },
   Haas: { colour: "#B6BABD", logo: null },

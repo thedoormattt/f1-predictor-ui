@@ -5,6 +5,7 @@ export interface Race {
   type: "GP" | "Sprint";
   race_key: string;
   scheduled_at: string;
+  locks_at: string | null;
   openf1_meeting_key: number | null;
   openf1_session_key: number | null;
 }
@@ -87,8 +88,25 @@ export interface Driver {
   team: string | null;
 }
 
+export interface EnrichedDriver {
+  id: number;
+  acronym: string;
+  full_name: string;
+  number: number | null;
+  team: string | null;
+  active: boolean;
+  headshot_url: string | null;
+  team_colour: string | null;
+}
+
 export interface Team {
   id: number;
   name: string;
   acronym: string;
+}
+
+export interface TeamData {
+  colour: string;
+  logo: string | null;
+  whiteBg?: boolean;
 }

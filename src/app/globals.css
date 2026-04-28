@@ -1,20 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --font-display: 'Barlow Condensed', sans-serif;
-  --font-body:    'Barlow', sans-serif;
-  --font-mono:    'JetBrains Mono', monospace;
+  --font-display: "Barlow Condensed", sans-serif;
+  --font-body: "Barlow", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 html {
-  background: #0A0A0A;
-  color: #F5F5F5;
+  background: #0a0a0a;
+  color: #f5f5f5;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
@@ -22,39 +24,56 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(ellipse 80% 40% at 50% -10%, rgba(232,0,45,0.08) 0%, transparent 60%),
-    #0A0A0A;
+    radial-gradient(
+      ellipse 80% 40% at 50% -10%,
+      rgba(232, 0, 45, 0.08) 0%,
+      transparent 60%
+    ),
+    #0a0a0a;
 }
 
 /* ── Scrollbar ─────────────────────────────── */
-::-webkit-scrollbar        { width: 4px; }
-::-webkit-scrollbar-track  { background: #0A0A0A; }
-::-webkit-scrollbar-thumb  { background: #E8002D; border-radius: 2px; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #e8002d;
+  border-radius: 2px;
+}
 
 /* ── Typography helpers ────────────────────── */
-.font-display { font-family: var(--font-display); }
-.font-mono    { font-family: var(--font-mono); }
+.font-display {
+  font-family: var(--font-display);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
 
 /* ── Red accent line ───────────────────────── */
 .red-bar {
   height: 3px;
-  background: #E8002D;
+  background: #e8002d;
   border-radius: 2px;
 }
 
 /* ── Card base ─────────────────────────────── */
 .card {
-  background: #1A1A1A;
-  border: 1px solid #2A2A2A;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
 }
 
 .card-hover {
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
 }
 .card-hover:hover {
-  border-color: #E8002D;
-  background: #1E1E1E;
+  border-color: #e8002d;
+  background: #1e1e1e;
 }
 
 /* ── Position badge ────────────────────────── */
@@ -70,10 +89,22 @@ body {
   border-radius: 4px;
 }
 
-.pos-1 { background: #FFD700; color: #0A0A0A; }
-.pos-2 { background: #C0C0C0; color: #0A0A0A; }
-.pos-3 { background: #CD7F32; color: #0A0A0A; }
-.pos-n { background: #2A2A2A; color: #F5F5F5; }
+.pos-1 {
+  background: #ffd700;
+  color: #0a0a0a;
+}
+.pos-2 {
+  background: #c0c0c0;
+  color: #0a0a0a;
+}
+.pos-3 {
+  background: #cd7f32;
+  color: #0a0a0a;
+}
+.pos-n {
+  background: #2a2a2a;
+  color: #f5f5f5;
+}
 
 /* ── Driver chip ───────────────────────────── */
 .driver-chip {
@@ -82,15 +113,44 @@ body {
   font-weight: 500;
   padding: 2px 6px;
   border-radius: 3px;
-  background: #2A2A2A;
+  background: #2a2a2a;
   letter-spacing: 0.05em;
 }
 
 /* ── Stagger animation delays ──────────────── */
-.stagger-1  { animation-delay: 0.05s; opacity: 0; }
-.stagger-2  { animation-delay: 0.10s; opacity: 0; }
-.stagger-3  { animation-delay: 0.15s; opacity: 0; }
-.stagger-4  { animation-delay: 0.20s; opacity: 0; }
-.stagger-5  { animation-delay: 0.25s; opacity: 0; }
-.stagger-6  { animation-delay: 0.30s; opacity: 0; }
-.stagger-7  { animation-delay: 0.35s; opacity: 0; }
+.stagger-1 {
+  animation-delay: 0.05s;
+  opacity: 0;
+}
+.stagger-2 {
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+.stagger-3 {
+  animation-delay: 0.15s;
+  opacity: 0;
+}
+.stagger-4 {
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+.stagger-5 {
+  animation-delay: 0.25s;
+  opacity: 0;
+}
+.stagger-6 {
+  animation-delay: 0.3s;
+  opacity: 0;
+}
+.stagger-7 {
+  animation-delay: 0.35s;
+  opacity: 0;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

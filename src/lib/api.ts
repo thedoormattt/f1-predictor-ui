@@ -7,6 +7,7 @@ import type {
   CumulativeEntry,
   Driver,
   Team,
+  EnrichedDriver,
 } from "@/types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -57,3 +58,6 @@ export const getTeams = () => get<Team[]>("/reference/teams");
 
 export const getPlayers = () =>
   get<{ id: string; username: string }[]>("/players");
+
+export const getEnrichedDrivers = () =>
+  get<EnrichedDriver[]>("/reference/drivers/enriched");

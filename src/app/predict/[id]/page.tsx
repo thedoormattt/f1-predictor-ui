@@ -1,11 +1,47 @@
 "use client";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
-import { getRace, getDrivers, getTeams } from "@/lib/api";
-import type { Race, Driver, Team, Prediction } from "@/types";
-import clsx from "clsx";
+import { getRaces, getEnrichedDrivers, getTeams } from "@/lib/api";
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
+import SelectionCarousel from "@/components/SelectionCarousel";
+import type { Race, Team, Prediction, EnrichedDriver } from "@/types";
+import clsx from "clsx";
+
+const TEAM_COLOURS: Record<string, string> = {
+  Mercedes: "#6CD3BF",
+  Ferrari: "#E8002D",
+  McLaren: "#FF8000",
+  Haas: "#B6BABD",
+  Alpine: "#2293D1",
+  "Red Bull Racing": "#3671C6",
+  "Racing Bulls": "#6692FF",
+  Audi: "#C0392B",
+  Williams: "#1B6AC2",
+  Cadillac: "#8A8A8A",
+  "Aston Martin": "#358C75",
+};
+
+const TEAM_LOGOS: Record<string, string> = {
+  Mercedes: "/logos/mercedes.svg",
+  Ferrari: "/logos/ferrari.svg",
+  McLaren: "/logos/mclaren.svg",
+  // add others as downloaded
+};
+
+function getTeamColour(name: string): string {
+  for (const [k, v] of Object.entries(TEAM_COLOURS)) {
+    if (name.toLowerCase().includes(k.toLowerCase())) return v;
+  }
+  return "#6B6B6B";
+}
+
+function getTeamLogo(name: string): string | null {
+  for (const [k, v] of Object.entries(TEAM_LOGOS)) {
+    if (name.toLowerCase().includes(k.toLowerCase())) return v;
+  }
+  return null;
+}
 
 interface FormState {
   pole: string;
@@ -36,15 +72,14 @@ const EMPTY: FormState = {
 export default function PredictRacePage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }) {
-  const { id } = use(params);
   const { user, loading } = useAuth();
   const router = useRouter();
-  const raceId = parseInt(id);
+  const raceId = parseInt(params.id);
 
   const [race, setRace] = useState<Race | null>(null);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
+  const [drivers, setDrivers] = useState<EnrichedDriver[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [form, setForm] = useState<FormState>(EMPTY);
   const [saving, setSaving] = useState(false);
@@ -57,12 +92,13 @@ export default function PredictRacePage({
   }, [user, loading, router]);
 
   useEffect(() => {
-    Promise.all([getRace(raceId), getDrivers(), getTeams()]).then(
-      ([r, d, t]) => {
+    Promise.all([getRaces(), getEnrichedDrivers(), getTeams()]).then(
+      ([races, d, t]) => {
+        const r = races.find((r) => r.id === raceId) ?? null;
         setRace(r);
         setDrivers(d);
         setTeams(t);
-        setLocked(new Date() >= new Date(r.scheduled_at));
+        if (r) setLocked(new Date() >= new Date(r.locks_at ?? r.scheduled_at));
       },
     );
   }, [raceId]);
@@ -88,12 +124,12 @@ export default function PredictRacePage({
             pos_gained: existing.pos_gained ?? "",
           });
         }
-      });
+      })
+      .catch(() => {});
   }, [user, raceId]);
 
-  const set =
-    (field: keyof FormState) => (e: React.ChangeEvent<HTMLSelectElement>) =>
-      setForm((f) => ({ ...f, [field]: e.target.value }));
+  const set = (field: keyof FormState) => (value: string) =>
+    setForm((f) => ({ ...f, [field]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,26 +178,26 @@ export default function PredictRacePage({
       </div>
     );
 
-  const driverSelect = (field: keyof FormState, label: string) => (
-    <div className="space-y-1">
-      <label className="font-mono text-xs text-f1muted uppercase tracking-wide">
-        {label}
-      </label>
-      <select
-        value={form[field]}
-        onChange={set(field)}
-        disabled={locked}
-        className="w-full bg-f1grey border border-f1mid rounded px-3 py-2.5 text-f1white font-mono text-sm focus:outline-none focus:border-f1red transition-colors disabled:opacity-40 appearance-none"
-      >
-        <option value="">— Select —</option>
-        {drivers.map((d) => (
-          <option key={d.acronym} value={d.acronym}>
-            {d.acronym} — {d.full_name}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+  // Build carousel items
+  const driverItems = drivers.map((d) => ({
+    value: d.acronym,
+    label: d.full_name.split(" ").pop() ?? d.full_name,
+    sublabel: d.team ?? undefined,
+    image: d.headshot_url ?? null,
+    colour: d.team_colour ?? getTeamColour(d.team ?? ""),
+  }));
+
+  const teamItems = teams.map((t) => ({
+    value: t.acronym,
+    label: t.name,
+    image: getTeamLogo(t.name),
+    colour: getTeamColour(t.name),
+  }));
+
+  const scYesNo = [
+    { value: "true", label: "Yes", colour: "#358C75", image: null },
+    { value: "false", label: "No", colour: "#E8002D", image: null },
+  ];
 
   return (
     <div className="space-y-8 max-w-lg">
@@ -174,7 +210,7 @@ export default function PredictRacePage({
         </h1>
         {locked && (
           <p className="font-mono text-xs text-f1red mt-2 bg-f1red/10 border border-f1red/20 rounded px-3 py-2 inline-block">
-            Predictions locked — race has started
+            Predictions locked — race weekend has started
           </p>
         )}
       </div>
@@ -184,60 +220,83 @@ export default function PredictRacePage({
         className="space-y-5 animate-fade-up"
         style={{ animationDelay: "0.1s" }}
       >
-        {/* Section: Qualifying */}
         <Section label="Qualifying">
-          {driverSelect("pole", "Pole Position")}
+          <FieldLabel>Pole Position</FieldLabel>
+          <SelectionCarousel
+            items={driverItems}
+            selected={form.pole}
+            onSelect={set("pole")}
+            disabled={locked}
+          />
         </Section>
 
-        {/* Section: Podium */}
         <Section label="Race Podium">
-          {driverSelect("p1", "1st Place")}
-          {driverSelect("p2", "2nd Place")}
-          {driverSelect("p3", "3rd Place")}
+          <FieldLabel>1st Place</FieldLabel>
+          <SelectionCarousel
+            items={driverItems}
+            selected={form.p1}
+            onSelect={set("p1")}
+            disabled={locked}
+          />
+          <FieldLabel>2nd Place</FieldLabel>
+          <SelectionCarousel
+            items={driverItems}
+            selected={form.p2}
+            onSelect={set("p2")}
+            disabled={locked}
+          />
+          <FieldLabel>3rd Place</FieldLabel>
+          <SelectionCarousel
+            items={driverItems}
+            selected={form.p3}
+            onSelect={set("p3")}
+            disabled={locked}
+          />
         </Section>
 
-        {/* Section: Other */}
         <Section label="Other Picks">
-          {driverSelect("last_place", "Last Place")}
-          {driverSelect("fastest_lap", "Fastest Lap")}
-
-          <div className="space-y-1">
-            <label className="font-mono text-xs text-f1muted uppercase tracking-wide">
-              Fastest Pitstop (Team)
-            </label>
-            <select
-              value={form.fastest_pitstop}
-              onChange={set("fastest_pitstop")}
-              disabled={locked}
-              className="w-full bg-f1grey border border-f1mid rounded px-3 py-2.5 text-f1white font-mono text-sm focus:outline-none focus:border-f1red transition-colors disabled:opacity-40 appearance-none"
-            >
-              <option value="">— Select —</option>
-              {teams.map((t) => (
-                <option key={t.acronym} value={t.acronym}>
-                  {t.acronym} — {t.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {driverSelect("dotd", "Driver of the Day")}
-          {driverSelect("pos_gained", "Most Positions Gained")}
-
-          <div className="space-y-1">
-            <label className="font-mono text-xs text-f1muted uppercase tracking-wide">
-              Safety Car?
-            </label>
-            <select
-              value={form.safety_car}
-              onChange={set("safety_car")}
-              disabled={locked}
-              className="w-full bg-f1grey border border-f1mid rounded px-3 py-2.5 text-f1white font-mono text-sm focus:outline-none focus:border-f1red transition-colors disabled:opacity-40 appearance-none"
-            >
-              <option value="">— Select —</option>
-              <option value="true">Yes</option>
-              <option value="false">No</option>
-            </select>
-          </div>
+          <FieldLabel>Last Place</FieldLabel>
+          <SelectionCarousel
+            items={driverItems}
+            selected={form.last_place}
+            onSelect={set("last_place")}
+            disabled={locked}
+          />
+          <FieldLabel>Fastest Lap</FieldLabel>
+          <SelectionCarousel
+            items={driverItems}
+            selected={form.fastest_lap}
+            onSelect={set("fastest_lap")}
+            disabled={locked}
+          />
+          <FieldLabel>Fastest Pitstop (Team)</FieldLabel>
+          <SelectionCarousel
+            items={teamItems}
+            selected={form.fastest_pitstop}
+            onSelect={set("fastest_pitstop")}
+            disabled={locked}
+          />
+          <FieldLabel>Driver of the Day</FieldLabel>
+          <SelectionCarousel
+            items={driverItems}
+            selected={form.dotd}
+            onSelect={set("dotd")}
+            disabled={locked}
+          />
+          <FieldLabel>Most Positions Gained</FieldLabel>
+          <SelectionCarousel
+            items={driverItems}
+            selected={form.pos_gained}
+            onSelect={set("pos_gained")}
+            disabled={locked}
+          />
+          <FieldLabel>Safety Car?</FieldLabel>
+          <SelectionCarousel
+            items={scYesNo}
+            selected={form.safety_car}
+            onSelect={set("safety_car")}
+            disabled={locked}
+          />
         </Section>
 
         {error && (
@@ -279,5 +338,13 @@ function Section({
       </h3>
       {children}
     </div>
+  );
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-mono text-xs text-f1muted uppercase tracking-wide">
+      {children}
+    </p>
   );
 }
