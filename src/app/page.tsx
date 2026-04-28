@@ -100,7 +100,7 @@ export default async function Home() {
       colour: d.team_colour ?? getTeamColour(d.team ?? ""),
       headshot: d.headshot_url ?? null,
       team: d.team ?? "",
-      full_name: `${d.first_name} ${d.last_name}`,
+      full_name: d.full_name ?? d.acronym,
     };
   }
 
