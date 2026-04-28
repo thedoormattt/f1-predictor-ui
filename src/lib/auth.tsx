@@ -52,8 +52,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data }) => {
       const u = data.session?.user ?? null;
       setUser(u);
-      if (u) fetchAdminStatus(u.id);
-      setLoading(false);
+      setLoading(false); // ← set loading false immediately
+      if (u) fetchAdminStatus(u.id); // fetch admin status separately, non-blocking
     });
 
     const {
