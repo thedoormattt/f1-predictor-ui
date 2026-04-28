@@ -87,6 +87,7 @@ export default function PredictRacePage({
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
+  const [isSprint, setIsSprint] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) router.push("/login");
@@ -100,6 +101,7 @@ export default function PredictRacePage({
         setDrivers(d);
         setTeams(t);
         if (r) setLocked(new Date() >= new Date(r.locks_at ?? r.scheduled_at));
+        if (r) setIsSprint(r.type === "Sprint");
       },
     );
   }, [raceId]);
@@ -287,19 +289,33 @@ export default function PredictRacePage({
             onSelect={set("fastest_lap")}
             disabled={locked}
           />
-          <FieldLabel>Fastest Pitstop (Team)</FieldLabel>
+          <FieldLabel>
+            Fastest Pitstop (Team)
+            {isSprint && (
+              <span className="ml-2 text-f1muted normal-case">
+                — not applicable for sprints
+              </span>
+            )}
+          </FieldLabel>
           <SelectionCarousel
             items={teamItems}
             selected={form.fastest_pitstop}
             onSelect={set("fastest_pitstop")}
-            disabled={locked}
+            disabled={locked || isSprint}
           />
-          <FieldLabel>Driver of the Day</FieldLabel>
+          <FieldLabel>
+            Driver of the Day
+            {isSprint && (
+              <span className="ml-2 text-f1muted normal-case">
+                — not applicable for sprints
+              </span>
+            )}
+          </FieldLabel>
           <SelectionCarousel
             items={driverItems}
             selected={form.dotd}
             onSelect={set("dotd")}
-            disabled={locked}
+            disabled={locked || isSprint}
           />
           <FieldLabel>Most Positions Gained</FieldLabel>
           <SelectionCarousel
