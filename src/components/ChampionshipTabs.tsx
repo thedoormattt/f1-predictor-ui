@@ -2,25 +2,30 @@
 import { useState } from "react";
 import clsx from "clsx";
 
-const TEAM_COLOURS: Record<string, string> = {
-  Mercedes: "#6CD3BF",
-  Ferrari: "#E8002D",
-  McLaren: "#FF8000",
-  Haas: "#B6BABD",
-  Alpine: "#2293D1",
-  "Red Bull Racing": "#3671C6",
-  "Racing Bulls": "#6692FF",
-  Audi: "#C0392B",
-  Williams: "#1B6AC2",
-  Cadillac: "#8A8A8A",
-  "Aston Martin": "#358C75",
+interface TeamData {
+  colour: string;
+  logo: string | null;
+}
+
+const TEAMS: Record<string, TeamData> = {
+  Mercedes: { colour: "#6CD3BF", logo: "/logos/mercedes.svg" },
+  Ferrari: { colour: "#E8002D", logo: null },
+  McLaren: { colour: "#FF8000", logo: null },
+  Haas: { colour: "#B6BABD", logo: null },
+  Alpine: { colour: "#2293D1", logo: null },
+  "Red Bull Racing": { colour: "#3671C6", logo: null },
+  "Racing Bulls": { colour: "#6692FF", logo: null },
+  Audi: { colour: "#C0392B", logo: null },
+  Williams: { colour: "#1B6AC2", logo: null },
+  Cadillac: { colour: "#8A8A8A", logo: null },
+  "Aston Martin": { colour: "#358C75", logo: null },
 };
 
-function getTeamColour(teamName: string): string {
-  for (const [key, colour] of Object.entries(TEAM_COLOURS)) {
-    if (teamName.toLowerCase().includes(key.toLowerCase())) return colour;
+function getTeamData(teamName: string): TeamData {
+  for (const [key, data] of Object.entries(TEAMS)) {
+    if (teamName.toLowerCase().includes(key.toLowerCase())) return data;
   }
-  return "#6B6B6B";
+  return { colour: "#6B6B6B", logo: null };
 }
 
 interface Driver {
@@ -51,6 +56,7 @@ function PodiumCard({
   colour,
   position,
   headshot,
+  logo,
 }: {
   name: string;
   subtext?: string;
@@ -58,6 +64,7 @@ function PodiumCard({
   colour: string;
   position: 1 | 2 | 3;
   headshot?: string | null;
+  logo?: string | null;
 }) {
   const isFirst = position === 1;
   const imgSize = isFirst ? "w-14 h-14" : "w-12 h-12";
@@ -79,6 +86,12 @@ function PodiumCard({
             "rounded-full mx-auto object-cover object-top",
           )}
           style={{ background: colour }}
+        />
+      ) : logo ? (
+        <img
+          src={logo}
+          alt={name}
+          className={clsx(imgSize, "mx-auto object-contain")}
         />
       ) : (
         <div
@@ -215,19 +228,22 @@ export default function ChampionshipTabs({ drivers, constructors }: Props) {
               <PodiumCard
                 name={constructors[1].team}
                 points={constructors[1].points}
-                colour={getTeamColour(constructors[1].team)}
+                colour={getTeamData(constructors[1].team).colour}
+                logo={getTeamData(constructors[1].team).logo}
                 position={2}
               />
               <PodiumCard
                 name={constructors[0].team}
                 points={constructors[0].points}
-                colour={getTeamColour(constructors[0].team)}
+                colour={getTeamData(constructors[0].team).colour}
+                logo={getTeamData(constructors[0].team).logo}
                 position={1}
               />
               <PodiumCard
                 name={constructors[2].team}
                 points={constructors[2].points}
-                colour={getTeamColour(constructors[2].team)}
+                colour={getTeamData(constructors[2].team).colour}
+                logo={getTeamData(constructors[2].team).logo}
                 position={3}
               />
             </div>
@@ -243,7 +259,7 @@ export default function ChampionshipTabs({ drivers, constructors }: Props) {
                 </span>
                 <div
                   className="w-1 h-8 rounded-full shrink-0"
-                  style={{ background: getTeamColour(c.team) }}
+                  style={{ background: getTeamData(c.team).colour }}
                 />
                 <span className="font-display font-bold uppercase tracking-wide text-sm flex-1">
                   {c.team}
