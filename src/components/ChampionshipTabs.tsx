@@ -242,6 +242,7 @@ export default function ChampionshipTabs({ drivers, constructors }: Props) {
                 points={constructors[1].points}
                 colour={getTeamData(constructors[1].team).colour}
                 logo={getTeamData(constructors[1].team).logo}
+                whiteBg={getTeamData(constructors[1].team).whiteBg}
                 position={2}
               />
               <PodiumCard
@@ -249,6 +250,7 @@ export default function ChampionshipTabs({ drivers, constructors }: Props) {
                 points={constructors[0].points}
                 colour={getTeamData(constructors[0].team).colour}
                 logo={getTeamData(constructors[0].team).logo}
+                whiteBg={getTeamData(constructors[0].team).whiteBg}
                 position={1}
               />
               <PodiumCard
@@ -256,6 +258,7 @@ export default function ChampionshipTabs({ drivers, constructors }: Props) {
                 points={constructors[2].points}
                 colour={getTeamData(constructors[2].team).colour}
                 logo={getTeamData(constructors[2].team).logo}
+                whiteBg={getTeamData(constructors[2].team).whiteBg}
                 position={3}
               />
             </div>
