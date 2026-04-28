@@ -309,12 +309,33 @@ export default function PredictRacePage({
             disabled={locked}
           />
           <FieldLabel>Safety Car?</FieldLabel>
-          <SelectionCarousel
-            items={scYesNo}
-            selected={form.safety_car}
-            onSelect={set("safety_car")}
-            disabled={locked}
-          />
+          <div className="flex gap-2">
+            {[
+              { value: "true", label: "Yes", colour: "#358C75" },
+              { value: "false", label: "No", colour: "#E8002D" },
+            ].map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => !locked && set("safety_car")(opt.value)}
+                disabled={locked}
+                className={clsx(
+                  "flex-1 py-3 rounded font-display font-bold text-sm uppercase tracking-wide border transition-all",
+                  form.safety_car === opt.value
+                    ? "text-white border-transparent"
+                    : "text-f1muted border-f1mid hover:border-f1light bg-f1grey",
+                  locked && "opacity-40 cursor-not-allowed",
+                )}
+                style={
+                  form.safety_car === opt.value
+                    ? { background: opt.colour, borderColor: opt.colour }
+                    : undefined
+                }
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </Section>
 
         {error && (
