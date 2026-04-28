@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { getRaces, getEnrichedDrivers, getTeams } from "@/lib/api";
@@ -72,11 +72,12 @@ const EMPTY: FormState = {
 export default function PredictRacePage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const raceId = parseInt(params.id);
+  const { id } = use(params);
+  const raceId = parseInt(id);
 
   const [race, setRace] = useState<Race | null>(null);
   const [drivers, setDrivers] = useState<EnrichedDriver[]>([]);
