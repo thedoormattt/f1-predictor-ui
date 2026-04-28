@@ -1,7 +1,7 @@
 import clsx from "clsx";
-import { getRaces, getResult, getRaceScores } from "@/lib/api";
+import { getRaces, getResult } from "@/lib/api";
 import ChampionshipTabs from "@/components/ChampionshipTabs";
-import { getTeamColour } from "@/lib/teams";
+import { getTeamColour, getTeamLogo, getTeamByAcronym } from "@/lib/teams";
 
 export const revalidate = 300;
 
@@ -23,18 +23,18 @@ async function getChampionshipStandings(sessionKey: number) {
   const constructors = await constructorsRes.json();
   const driverInfo = await driverInfoRes.json();
 
-  const driverMap: Record<
+  const driverInfoMap: Record<
     number,
     {
       acronym: string;
       full_name: string;
       team: string;
       colour: string;
-      headshot: string;
+      headshot: string | null;
     }
   > = {};
   for (const d of driverInfo) {
-    driverMap[d.driver_number] = {
+    driverInfoMap[d.driver_number] = {
       acronym: d.name_acronym,
       full_name: `${d.first_name} ${d.last_name}`,
       team: d.team_name,
@@ -47,11 +47,12 @@ async function getChampionshipStandings(sessionKey: number) {
     .map((d: any) => ({
       position: d.position_current,
       points: d.points_current,
-      acronym: driverMap[d.driver_number]?.acronym ?? `#${d.driver_number}`,
-      full_name: driverMap[d.driver_number]?.full_name ?? `#${d.driver_number}`,
-      team: driverMap[d.driver_number]?.team ?? "",
-      colour: driverMap[d.driver_number]?.colour ?? "#6B6B6B",
-      headshot: driverMap[d.driver_number]?.headshot ?? null,
+      acronym: driverInfoMap[d.driver_number]?.acronym ?? `#${d.driver_number}`,
+      full_name:
+        driverInfoMap[d.driver_number]?.full_name ?? `#${d.driver_number}`,
+      team: driverInfoMap[d.driver_number]?.team ?? "",
+      colour: driverInfoMap[d.driver_number]?.colour ?? "#6B6B6B",
+      headshot: driverInfoMap[d.driver_number]?.headshot ?? null,
     }))
     .sort((a: any, b: any) => a.position - b.position);
 
@@ -64,6 +65,13 @@ async function getChampionshipStandings(sessionKey: number) {
     .sort((a: any, b: any) => a.position - b.position);
 
   return { drivers: mergedDrivers, constructors: mergedConstructors };
+}
+
+interface DriverInfo {
+  colour: string;
+  headshot: string | null;
+  team: string;
+  full_name: string;
 }
 
 export default async function Home() {
@@ -79,7 +87,6 @@ export default async function Home() {
 
   const latestRace = completedRaces[0] ?? null;
 
-  // Build acronym -> driver info map from enriched drivers
   const enrichedRes = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000"}/reference/drivers/enriched`,
     { next: { revalidate: 3600 } },
@@ -87,15 +94,13 @@ export default async function Home() {
 
   const enrichedDrivers = enrichedRes?.ok ? await enrichedRes.json() : [];
 
-  const driverMap: Record<
-    string,
-    { colour: string; headshot: string | null; team: string }
-  > = {};
+  const driverMap: Record<string, DriverInfo> = {};
   for (const d of enrichedDrivers) {
     driverMap[d.acronym] = {
       colour: d.team_colour ?? getTeamColour(d.team ?? ""),
       headshot: d.headshot_url ?? null,
       team: d.team ?? "",
+      full_name: `${d.first_name} ${d.last_name}`,
     };
   }
 
@@ -134,7 +139,7 @@ export default async function Home() {
 
           {latestResult ? (
             <div className="space-y-3">
-              {/* Podium cards — 2nd, 1st, 3rd */}
+              {/* Podium cards */}
               {latestResult.p1 && latestResult.p2 && latestResult.p3 && (
                 <div className="grid grid-cols-3 gap-2 items-end">
                   {[
@@ -176,7 +181,7 @@ export default async function Home() {
                           />
                         )}
                         <p className="font-display font-bold text-xs uppercase tracking-wide leading-tight">
-                          {driver}
+                          {info?.full_name ?? driver}
                         </p>
                         <p className="font-mono text-f1muted text-[10px]">
                           {info?.team ?? ""}
@@ -200,30 +205,63 @@ export default async function Home() {
               {/* Other results */}
               <div className="card overflow-hidden">
                 {[
-                  { label: "Pole", value: latestResult.pole },
-                  { label: "Fastest Lap", value: latestResult.fastest_lap },
+                  { label: "Pole", value: latestResult.pole, isTeam: false },
+                  {
+                    label: "Fastest Lap",
+                    value: latestResult.fastest_lap,
+                    isTeam: false,
+                  },
                   {
                     label: "Fastest Pitstop",
                     value: latestResult.fastest_pitstop,
+                    isTeam: true,
                   },
                   {
                     label: "Positions Gained",
                     value: latestResult.pos_gained_winner,
+                    isTeam: false,
                   },
-                  { label: "DotD", value: latestResult.dotd },
+                  { label: "DotD", value: latestResult.dotd, isTeam: false },
                 ]
                   .filter(({ value }) => value)
-                  .map(({ label, value }) => {
-                    const info = driverMap[value!];
+                  .map(({ label, value, isTeam }) => {
+                    const info = !isTeam ? driverMap[value!] : null;
+                    const teamName = isTeam ? getTeamByAcronym(value!) : null;
+                    const teamColour = isTeam
+                      ? getTeamColour(teamName ?? value!)
+                      : null;
+                    const teamLogo = isTeam
+                      ? getTeamLogo(teamName ?? value!)
+                      : null;
+
                     return (
                       <div
                         key={label}
                         className="flex items-center gap-3 px-4 py-3 border-b border-f1mid last:border-0"
                       >
-                        <span className="font-mono text-f1muted text-xs w-24 shrink-0 whitespace-nowrap">
+                        <span className="font-mono text-f1muted text-xs w-28 shrink-0 whitespace-nowrap">
                           {label}
                         </span>
-                        {info?.headshot ? (
+
+                        {isTeam ? (
+                          teamLogo ? (
+                            <div
+                              className="w-7 h-7 rounded-full shrink-0 flex items-center justify-center p-1 overflow-hidden"
+                              style={{ background: teamColour ?? "#6B6B6B" }}
+                            >
+                              <img
+                                src={teamLogo}
+                                alt={value!}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                          ) : (
+                            <div
+                              className="w-7 h-7 rounded-full shrink-0"
+                              style={{ background: teamColour ?? "#6B6B6B" }}
+                            />
+                          )
+                        ) : info?.headshot ? (
                           <img
                             src={info.headshot}
                             alt={value!}
@@ -236,11 +274,14 @@ export default async function Home() {
                             style={{ background: info?.colour ?? "#6B6B6B" }}
                           />
                         )}
+
                         <span className="font-display font-bold uppercase tracking-wide text-sm flex-1">
-                          {value}
+                          {isTeam
+                            ? (teamName ?? value)
+                            : (info?.full_name ?? value)}
                         </span>
                         <span className="font-mono text-f1muted text-xs">
-                          {info?.team ?? ""}
+                          {!isTeam && (info?.team ?? "")}
                         </span>
                       </div>
                     );

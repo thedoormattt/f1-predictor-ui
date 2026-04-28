@@ -32,7 +32,6 @@ function PodiumCard({
   position,
   headshot,
   logo,
-  whiteBg,
 }: {
   name: string;
   subtext?: string;
@@ -41,7 +40,6 @@ function PodiumCard({
   position: 1 | 2 | 3;
   headshot?: string | null;
   logo?: string | null;
-  whiteBg?: boolean;
 }) {
   const isFirst = position === 1;
   const imgSize = isFirst ? "w-14 h-14" : "w-12 h-12";
@@ -72,12 +70,7 @@ function PodiumCard({
           )}
           style={{ background: colour }}
         >
-          <img
-            src={logo}
-            alt={name}
-            className="w-full h-full object-contain"
-            style={whiteBg ? { mixBlendMode: "multiply" } : undefined}
-          />
+          <img src={logo} alt={name} className="w-full h-full object-contain" />
         </div>
       ) : (
         <div
