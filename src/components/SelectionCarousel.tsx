@@ -37,10 +37,28 @@ export default function SelectionCarousel({
   useEffect(() => {
     const track = trackRef.current;
     if (!track || hasInitialised.current) return;
+
     const itemWidth = track.scrollWidth / 3;
-    track.scrollLeft = itemWidth;
+
+    // Find the selected item index in the middle copy
+    const selectedIndex = items.findIndex((item) => item.value === selected);
+
+    if (selectedIndex >= 0) {
+      // Scroll to selected item in the middle copy
+      const itemEl = track.children[
+        items.length + selectedIndex
+      ] as HTMLElement;
+      if (itemEl) {
+        track.scrollLeft =
+          itemEl.offsetLeft - track.clientWidth / 2 + itemEl.clientWidth / 2;
+      }
+    } else {
+      // No selection — start in the middle
+      track.scrollLeft = itemWidth;
+    }
+
     hasInitialised.current = true;
-  }, [items]);
+  }, [items, selected]);
 
   // Infinite loop — when near either end, jump to middle
   const handleScroll = () => {
