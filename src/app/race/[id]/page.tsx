@@ -88,6 +88,7 @@ export default async function RacePage({
                       : "No"
                     : null,
               },
+              { label: "Gains", value: result.pos_gained_winner },
             ].map(
               ({ label, value }) =>
                 value && (
