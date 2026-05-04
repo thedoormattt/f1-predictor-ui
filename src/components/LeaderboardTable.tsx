@@ -141,6 +141,7 @@ export default function LeaderboardTable({
                       "FP",
                       "DotD",
                       "SC",
+                      "Gains",
                     ].map((h) => (
                       <span key={h} className="w-10 text-right">
                         {h}
@@ -174,6 +175,7 @@ export default function LeaderboardTable({
                         s.fp_pts,
                         s.dotd_pts,
                         s.sc_pts,
+                        s.gains_pts,
                       ].map((pts, j) => (
                         <span
                           key={j}
