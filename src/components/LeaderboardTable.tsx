@@ -21,6 +21,7 @@ interface ScoreBreakdown {
   sc_pts: number;
   gains_pts: number;
   total: number;
+  is_rollover: boolean;
 }
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -161,6 +162,14 @@ export default function LeaderboardTable({
                         {s.type === "Sprint" && (
                           <span className="font-mono text-[10px] text-f1red uppercase">
                             S
+                          </span>
+                        )}
+                        {s.is_rollover && (
+                          <span
+                            className="font-mono text-[10px] text-f1muted uppercase"
+                            title="Rolled over from previous race"
+                          >
+                            ↩
                           </span>
                         )}
                       </div>

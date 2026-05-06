@@ -54,6 +54,8 @@ export default function PredictRacePage({
   const [error, setError] = useState<string | null>(null);
   const [locked, setLocked] = useState(false);
   const [isSprint, setIsSprint] = useState(false);
+  const [existingPrediction, setExistingPrediction] =
+    useState<Prediction | null>(null);
 
   useEffect(() => {
     if (!loading && !user) router.push("/login");
@@ -79,6 +81,7 @@ export default function PredictRacePage({
       .then((preds: Prediction[]) => {
         const existing = preds.find((p) => p.race_id === raceId);
         if (existing) {
+          setExistingPrediction(existing);
           setForm({
             pole: existing.pole ?? "",
             p1: existing.p1 ?? "",
@@ -129,6 +132,9 @@ export default function PredictRacePage({
         setSaving(false);
         return;
       }
+      setExistingPrediction((prev) =>
+        prev ? { ...prev, is_rollover: false } : null,
+      );
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch {
@@ -158,7 +164,6 @@ export default function PredictRacePage({
       </div>
     );
 
-  // Build carousel items
   const driverItems = [...drivers]
     .sort(
       (a, b) =>
@@ -180,13 +185,9 @@ export default function PredictRacePage({
     colour: getTeamColour(t.name),
   }));
 
-  const scYesNo = [
-    { value: "true", label: "Yes", colour: "#358C75", image: null },
-    { value: "false", label: "No", colour: "#E8002D", image: null },
-  ];
-
   return (
     <div className="space-y-8 max-w-lg">
+      {/* Header */}
       <div className="animate-fade-up">
         <p className="font-mono text-f1red text-xs tracking-widest uppercase mb-1">
           Round {race.round} · {race.type}
@@ -200,6 +201,16 @@ export default function PredictRacePage({
           </p>
         )}
       </div>
+
+      {/* Rollover banner */}
+      {existingPrediction?.is_rollover && !locked && (
+        <div className="card p-3 border border-f1mid animate-fade-up">
+          <p className="font-mono text-xs text-f1muted">
+            ↩ These predictions were rolled over from your previous race. Update
+            them before the deadline or they'll be used as-is.
+          </p>
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}

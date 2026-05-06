@@ -39,6 +39,7 @@ export interface Prediction {
   dotd: string | null;
   safety_car: boolean | null;
   pos_gained: string | null;
+  is_rollover: boolean;
 }
 
 export interface Score {
@@ -58,6 +59,7 @@ export interface Score {
   sc_pts: number;
   gains_pts: number;
   total: number;
+  is_rollover: boolean;
 }
 
 export interface LeaderboardEntry {
