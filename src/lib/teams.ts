@@ -11,7 +11,7 @@ export const TEAMS: Record<string, TeamData> = {
   Haas: { colour: "#B6BABD", logo: "/logos/haas.svg", acronym: "HAA" },
   Alpine: { colour: "#2293D1", logo: "/logos/alpine.svg", acronym: "ALP" },
   "Red Bull Racing": { colour: "#3671C6", logo: null, acronym: "RBR" },
-  "Racing Bulls": { colour: "#6692FF", logo: null, acronym: "RB" },
+  "Racing Bulls": { colour: "#6692FF", logo: null, acronym: "RBU" },
   Audi: { colour: "#C0392B", logo: "/logos/audi.svg", acronym: "AUD" },
   Williams: { colour: "#1B6AC2", logo: "/logos/williams.svg", acronym: "WIL" },
   Cadillac: { colour: "#8A8A8A", logo: "/logos/cadillac.svg", acronym: "CAD" },
