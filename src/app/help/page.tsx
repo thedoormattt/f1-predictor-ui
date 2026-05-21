@@ -47,9 +47,11 @@ export default function HelpPage() {
         <div className="card p-5 space-y-2 font-mono text-sm text-f1muted leading-relaxed">
           <p>
             Predictions lock at{" "}
-            <span className="text-f1white">FP1 start time</span> for each race
-            weekend. This means both the Sprint and GP predictions for a sprint
-            weekend must be submitted before Friday practice begins.
+            <span className="text-f1white">qualifying start time</span> for each
+            race weekend. For sprint weekends, both the Sprint and GP
+            predictions lock at{" "}
+            <span className="text-f1white">Sprint Qualifying start time</span>{" "}
+            on Friday.
           </p>
           <p>
             A live countdown is shown on each race&apos;s predict page. Submit
@@ -113,7 +115,9 @@ export default function HelpPage() {
         <div className="card p-5 space-y-2 font-mono text-sm text-f1muted leading-relaxed">
           <p>
             Sprint weekends have a separate prediction entry for the Sprint race
-            and the GP. Both share the same prediction deadline — FP1 on Friday.
+            and the GP. Both lock at{" "}
+            <span className="text-f1white">Sprint Qualifying start time</span>{" "}
+            on Friday — earlier than a normal weekend.
           </p>
           <p>
             <span className="text-f1white">Driver of the Day</span> and{" "}
