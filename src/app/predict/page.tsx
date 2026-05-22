@@ -116,7 +116,7 @@ function RaceCard({
       {past ? (
         <span className="font-mono text-xs text-f1muted uppercase">Locked</span>
       ) : (
-        <Countdown scheduledAt={race.scheduled_at} />
+        <Countdown locks_at={race.locks_at ?? race.scheduled_at} />
       )}
     </Link>
   );

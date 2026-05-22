@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 
-export default function Countdown({ scheduledAt }: { scheduledAt: string }) {
+export default function Countdown({ locks_at }: { locks_at: string }) {
   const [timeLeft, setTimeLeft] = useState("");
   const [urgent, setUrgent] = useState(false);
 
   useEffect(() => {
     const tick = () => {
-      const diff = new Date(scheduledAt).getTime() - Date.now();
+      const diff = new Date(locks_at).getTime() - Date.now();
       if (diff <= 0) {
         setTimeLeft("Locked");
         return;
@@ -32,7 +32,7 @@ export default function Countdown({ scheduledAt }: { scheduledAt: string }) {
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [scheduledAt]);
+  }, [locks_at]);
 
   if (timeLeft === "Locked") return null;
 
