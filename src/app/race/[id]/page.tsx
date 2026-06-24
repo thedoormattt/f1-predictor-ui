@@ -7,6 +7,7 @@ import {
 import { notFound } from "next/navigation";
 import clsx from "clsx";
 import type { Score, Prediction } from "@/types";
+import AllPredictionsTable from "@/components/AllPredictionsTable";
 
 export const revalidate = 60;
 
@@ -131,6 +132,17 @@ export default async function RacePage({
           />
         );
       })}
+
+      {raceStarted && (
+        <div className="animate-fade-up space-y-2">
+          <h2 className="font-display font-bold text-xl uppercase tracking-wide">
+            All Predictions
+          </h2>
+          <div className="card p-4">
+            <AllPredictionsTable raceId={raceId} result={result} />
+          </div>
+        </div>
+      )}
 
       {/* Predictions (before result) */}
       {!raceStarted && (
