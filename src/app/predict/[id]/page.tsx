@@ -17,7 +17,6 @@ interface FormState {
   last_place: string;
   fastest_lap: string;
   fastest_pitstop: string;
-  dotd: string;
   safety_car: string;
   pos_gained: string;
 }
@@ -30,7 +29,6 @@ const EMPTY: FormState = {
   last_place: "",
   fastest_lap: "",
   fastest_pitstop: "",
-  dotd: "",
   safety_car: "",
   pos_gained: "",
 };
@@ -90,7 +88,6 @@ export default function PredictRacePage({
             last_place: existing.last_place ?? "",
             fastest_lap: existing.fastest_lap ?? "",
             fastest_pitstop: existing.fastest_pitstop ?? "",
-            dotd: existing.dotd ?? "",
             safety_car:
               existing.safety_car != null ? String(existing.safety_car) : "",
             pos_gained: existing.pos_gained ?? "",
@@ -120,7 +117,6 @@ export default function PredictRacePage({
           last_place: form.last_place || null,
           fastest_lap: form.fastest_lap || null,
           fastest_pitstop: form.fastest_pitstop || null,
-          dotd: form.dotd || null,
           safety_car:
             form.safety_car !== "" ? form.safety_car === "true" : null,
           pos_gained: form.pos_gained || null,
@@ -278,20 +274,6 @@ export default function PredictRacePage({
             items={teamItems}
             selected={form.fastest_pitstop}
             onSelect={set("fastest_pitstop")}
-            disabled={locked || isSprint}
-          />
-          <FieldLabel>
-            Driver of the Day
-            {isSprint && (
-              <span className="ml-2 text-f1muted normal-case">
-                — not applicable for sprints
-              </span>
-            )}
-          </FieldLabel>
-          <SelectionCarousel
-            items={driverItems}
-            selected={form.dotd}
-            onSelect={set("dotd")}
             disabled={locked || isSprint}
           />
           <FieldLabel>Most Positions Gained</FieldLabel>

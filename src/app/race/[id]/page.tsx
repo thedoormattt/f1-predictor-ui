@@ -201,7 +201,12 @@ function ScoreRow({
           { label: "DotD", pts: score.dotd_pts, pred: prediction?.dotd },
           { label: "SC", pts: score.sc_pts },
           { label: "Pos", pts: score.gains_pts, pred: prediction?.pos_gained },
-        ].map(({ label, pts, pred }) => (
+        ]
+          // DotD was retired mid-season — only shown where it actually applies.
+          .filter(
+            ({ label, pts, pred }) => label !== "DotD" || pts > 0 || Boolean(pred),
+          )
+          .map(({ label, pts, pred }) => (
           <div
             key={label}
             className={clsx(

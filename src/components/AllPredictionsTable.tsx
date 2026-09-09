@@ -32,6 +32,8 @@ interface Result {
   pos_gained_winner: string | null;
 }
 
+// Driver of the Day was retired mid-season — the column stays for races that
+// already have it, and is hidden everywhere else.
 const FIELDS: { key: keyof Prediction; label: string }[] = [
   { key: "pole", label: "Pole" },
   { key: "p1", label: "P1" },
@@ -102,6 +104,10 @@ export default function AllPredictionsTable({
       <p className="font-mono text-f1muted text-sm">No predictions available</p>
     );
 
+  const showDotd =
+    Boolean(result?.dotd) || predictions.some((p) => Boolean(p.dotd));
+  const fields = FIELDS.filter((f) => f.key !== "dotd" || showDotd);
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs font-mono min-w-max">
@@ -110,7 +116,7 @@ export default function AllPredictionsTable({
             <th className="text-left px-3 py-2 text-f1muted uppercase tracking-wide whitespace-nowrap">
               Player
             </th>
-            {FIELDS.map((f) => (
+            {fields.map((f) => (
               <th
                 key={f.key}
                 className="text-center px-2 py-2 text-f1muted uppercase tracking-wide"
@@ -137,7 +143,7 @@ export default function AllPredictionsTable({
                   </span>
                 )}
               </td>
-              {FIELDS.map((f) => {
+              {fields.map((f) => {
                 const val =
                   f.key === "safety_car"
                     ? pred.safety_car == null

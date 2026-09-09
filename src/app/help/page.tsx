@@ -21,7 +21,7 @@ const scoring = [
   {
     category: "Driver of the Day",
     pts: "4",
-    notes: "Exact driver match — sprint races excluded",
+    notes: "Retired — no longer predicted, past scores unchanged",
   },
   { category: "Safety Car", pts: "4", notes: "Yes / No — binary" },
   { category: "Most Positions Gained", pts: "6", notes: "Exact driver match" },
@@ -120,10 +120,9 @@ export default function HelpPage() {
             on Friday — earlier than a normal weekend.
           </p>
           <p>
-            <span className="text-f1white">Driver of the Day</span> and{" "}
-            <span className="text-f1white">Fastest Pitstop</span> are not
-            awarded in sprint races and those fields are disabled on the sprint
-            predict form.
+            <span className="text-f1white">Fastest Pitstop</span> is not awarded
+            in sprint races and that field is disabled on the sprint predict
+            form.
           </p>
         </div>
       </section>

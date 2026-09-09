@@ -16,7 +16,6 @@ interface ResultData {
   fastest_lap: string | null;
   fastest_pitstop: string | null;
   pos_gained_winner: string | null;
-  dotd: string | null;
   safety_car: boolean | null;
 }
 
@@ -29,7 +28,6 @@ const EMPTY_RESULT: ResultData = {
   fastest_lap: null,
   fastest_pitstop: null,
   pos_gained_winner: null,
-  dotd: null,
   safety_car: null,
 };
 
@@ -42,7 +40,6 @@ export default function AdminPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [secret, setSecret] = useState("");
   const [raceId, setRaceId] = useState("");
-  const [dotd, setDotd] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ResultData | null>(null);
@@ -103,27 +100,6 @@ export default function AdminPage() {
             setShowEdit(true);
           }
         }
-      }
-    } catch {
-      setStatus("❌ Network error");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const adminPatch = async (path: string, msg: string) => {
-    setBusy(true);
-    setStatus(null);
-    try {
-      const res = await fetch(`${API}${path}`, {
-        method: "PATCH",
-        headers: { "X-Admin-Secret": secret },
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        setStatus(`❌ ${err.detail ?? "Error"}`);
-      } else {
-        setStatus(`✓ ${msg}`);
       }
     } catch {
       setStatus("❌ Network error");
@@ -229,6 +205,15 @@ export default function AdminPage() {
 
       {raceId && (
         <div className="space-y-3 animate-fade-up">
+          <div className="card p-4 border-l-2 border-l-f1red">
+            <p className="font-mono text-f1muted text-xs leading-relaxed">
+              Results are fetched and scored{" "}
+              <span className="text-f1white">automatically</span> a few hours
+              after each race and sprint. The steps below are only needed to
+              correct a result or to force an early run.
+            </p>
+          </div>
+
           <Step n={1} label="Fetch result from OpenF1">
             <button
               onClick={() =>
@@ -244,34 +229,9 @@ export default function AdminPage() {
             </button>
           </Step>
 
-          <Step n={2} label="Set Driver of the Day">
-            <div className="flex gap-2">
-              <select
-                value={dotd}
-                onChange={(e) => setDotd(e.target.value)}
-                className="flex-1 bg-f1grey border border-f1mid rounded px-3 py-2 text-f1white font-mono text-sm focus:outline-none focus:border-f1red appearance-none"
-              >
-                <option value="">— Select driver —</option>
-                {driverOptions}
-              </select>
-              <button
-                onClick={() =>
-                  adminPatch(
-                    `/results/admin/${raceId}/dotd?dotd=${dotd}`,
-                    "DotD saved",
-                  )
-                }
-                disabled={busy || !secret || !dotd}
-                className="px-4 py-2 bg-f1red hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-display font-bold text-sm uppercase tracking-wide rounded transition-colors shrink-0"
-              >
-                Save
-              </button>
-            </div>
-          </Step>
-
           {/* Override section */}
           {showEdit && (
-            <Step n={3} label="Override Result Fields">
+            <Step n={2} label="Override Result Fields">
               <div className="space-y-3">
                 {(
                   [
@@ -299,7 +259,6 @@ export default function AdminPage() {
                       label: "Positions Gained",
                       type: "driver",
                     },
-                    { field: "dotd", label: "DotD", type: "driver" },
                     { field: "safety_car", label: "Safety Car", type: "bool" },
                   ] as {
                     field: keyof ResultData;
@@ -346,7 +305,7 @@ export default function AdminPage() {
             </Step>
           )}
 
-          <Step n={showEdit ? 4 : 3} label="Calculate all scores">
+          <Step n={showEdit ? 3 : 2} label="Run scoring manually">
             <button
               onClick={() =>
                 adminPost(`/results/admin/${raceId}/score`, "Scores calculated")
@@ -359,6 +318,24 @@ export default function AdminPage() {
           </Step>
         </div>
       )}
+
+      <div className="card p-4 space-y-3 animate-fade-up">
+        <h3 className="font-display font-bold text-sm uppercase tracking-wide">
+          Run Auto-Score Sweep
+        </h3>
+        <p className="font-mono text-f1muted text-xs">
+          Checks every recent race that has finished, pulls anything missing
+          from OpenF1 and scores it. This runs on its own in the background —
+          use this to trigger it immediately.
+        </p>
+        <button
+          onClick={() => adminPost("/results/admin/autoscore", "Sweep complete")}
+          disabled={busy || !secret}
+          className="btn-admin"
+        >
+          Sweep Now
+        </button>
+      </div>
 
       <div className="card p-4 space-y-3 animate-fade-up">
         <h3 className="font-display font-bold text-sm uppercase tracking-wide">

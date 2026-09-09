@@ -53,7 +53,7 @@ Make sure your FastAPI backend is also running on port 8000.
 | `/forgot-password` | Request a password reset email                                         |
 | `/reset-password`  | Set a new password via reset link                                      |
 | `/help`            | Scoring rules, prediction cutoff info, tips                            |
-| `/admin`           | Fetch OpenF1 results, override fields, set DotD, trigger scoring       |
+| `/admin`           | Corrections only — fetch OpenF1 results, override fields, force scoring |
 
 ---
 
@@ -107,19 +107,28 @@ Players self-register at `/signup`. Display name is checked for uniqueness clien
 
 ---
 
-## After each race — admin workflow
+## After each race — nothing
 
-1. Go to `/admin`
-2. Enter your `SECRET_KEY`
-3. Select the race
-4. Click **Fetch OpenF1 Data** — pulls positions, fastest lap, pitstop, safety car, positions gained
-5. Use **Override Result Fields** to correct any data that was fetched incorrectly
-6. Select **Driver of the Day** and save
-7. Click **Run Scoring** — calculates scores for all players
+The API fetches the result from OpenF1 and scores every player automatically, a
+few hours after each race and sprint. Nothing needs doing at `/admin`.
 
-Use **Rescore All Races** after adding new players or correcting past results.
+`/admin` is now only for corrections:
+
+1. Go to `/admin`, enter your `SECRET_KEY`, select the race
+2. **Fetch OpenF1 Data** — re-pull positions, fastest lap, pitstop, safety car, positions gained
+3. **Override Result Fields** — fix anything OpenF1 got wrong
+4. **Run Scoring** — recalculate after a correction
+5. **Sweep Now** — run the automatic pass immediately instead of waiting for it
+6. **Rescore All Races** — after adding new players or correcting past results
 
 Scoring is safe to re-run at any time.
+
+### Driver of the Day
+
+DotD has been retired — it isn't published by OpenF1 and was the only field ever
+entered by hand. It's gone from the prediction form and from the admin page, and
+the DotD column only appears in the leaderboard, race and prediction tables for
+races that already have it. Past scores are untouched.
 
 ---
 

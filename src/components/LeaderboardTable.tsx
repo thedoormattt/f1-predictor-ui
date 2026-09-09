@@ -26,6 +26,30 @@ interface ScoreBreakdown {
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
+// Driver of the Day was retired mid-season. The column is kept so historical
+// scores still add up, but is hidden for players who never scored any.
+const BREAKDOWN_COLUMNS: {
+  label: string;
+  value: (s: ScoreBreakdown) => number;
+}[] = [
+  { label: "Pole", value: (s) => s.pole_pts },
+  { label: "P1", value: (s) => s.p1_pts },
+  { label: "P2", value: (s) => s.p2_pts },
+  { label: "P3", value: (s) => s.p3_pts },
+  { label: "Pod", value: (s) => s.podium_bonus + s.podium_pts },
+  { label: "Last", value: (s) => s.last_pts },
+  { label: "FL", value: (s) => s.fl_pts },
+  { label: "FP", value: (s) => s.fp_pts },
+  { label: "DotD", value: (s) => s.dotd_pts },
+  { label: "SC", value: (s) => s.sc_pts },
+  { label: "Gains", value: (s) => s.gains_pts },
+];
+
+function visibleColumns(rows: ScoreBreakdown[]) {
+  const hasDotd = rows.some((s) => s.dotd_pts > 0);
+  return BREAKDOWN_COLUMNS.filter((c) => c.label !== "DotD" || hasDotd);
+}
+
 export default function LeaderboardTable({
   entries,
 }: {
@@ -131,21 +155,9 @@ export default function LeaderboardTable({
                   {/* Header */}
                   <div className="flex items-center gap-0 pb-1 border-b border-f1mid text-[10px] font-mono text-f1muted uppercase">
                     <span className="w-16">Race</span>
-                    {[
-                      "Pole",
-                      "P1",
-                      "P2",
-                      "P3",
-                      "Pod",
-                      "Last",
-                      "FL",
-                      "FP",
-                      "DotD",
-                      "SC",
-                      "Gains",
-                    ].map((h) => (
-                      <span key={h} className="w-10 text-right">
-                        {h}
+                    {visibleColumns(scores[e.player_id]).map((c) => (
+                      <span key={c.label} className="w-10 text-right">
+                        {c.label}
                       </span>
                     ))}
                   </div>
@@ -173,27 +185,17 @@ export default function LeaderboardTable({
                           </span>
                         )}
                       </div>
-                      {[
-                        s.pole_pts,
-                        s.p1_pts,
-                        s.p2_pts,
-                        s.p3_pts,
-                        s.podium_bonus + s.podium_pts,
-                        s.last_pts,
-                        s.fl_pts,
-                        s.fp_pts,
-                        s.dotd_pts,
-                        s.sc_pts,
-                        s.gains_pts,
-                      ].map((pts, j) => (
+                      {visibleColumns(scores[e.player_id]).map((c) => (
                         <span
-                          key={j}
+                          key={c.label}
                           className={clsx(
                             "w-10 text-right font-mono text-xs",
-                            pts > 0 ? "text-f1red font-bold" : "text-f1muted",
+                            c.value(s) > 0
+                              ? "text-f1red font-bold"
+                              : "text-f1muted",
                           )}
                         >
-                          {pts > 0 ? pts : "—"}
+                          {c.value(s) > 0 ? c.value(s) : "—"}
                         </span>
                       ))}
                     </div>
